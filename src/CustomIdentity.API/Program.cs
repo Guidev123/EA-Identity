@@ -1,17 +1,11 @@
-//========================================== Environment Configure ===============================================/
-using CustomIdentity.API.Configuration;
+using CustomIdentity.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration
-    .SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile("appsettings.json", true, true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true)
-    .AddEnvironmentVariables();
-//================================================ END ========================================================/
-
-
-builder.Services.AddApiConfig(builder.Configuration);
+builder.AddEnviromentMiddleware();
+builder.AddDbContextMiddleware();
+builder.AddDependenciesMiddleware();
+builder.AddIdentityMiddleware();
 
 var app = builder.Build();
-app.CustomMiddlewares(app.Environment);
+app.UseSecurity(app.Environment);
 app.Run();

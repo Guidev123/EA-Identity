@@ -1,8 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace CustomIdentity.API.Configuration
+namespace CustomIdentity.API.Middlewares
 {
-    public static class ConfigureSwagger
+    public static class SwaggerMiddleware
     {
         public static void AddSwaggerConfig(this IServiceCollection services)
         {
@@ -11,7 +11,7 @@ namespace CustomIdentity.API.Configuration
                 c.SwaggerDoc("v1", new OpenApiInfo()
                 {
                     Title = "API Identidade",
-                    Description = "Esta é uma de autenticação de usuarios que pode ser utilizada para autenticação de usuarios em futuros projetos",
+                    Description = "Esta é uma de autenticação de usuarios",
                     Contact = new OpenApiContact() { Name = "Guilherme Nascimento", Email = "guirafaelrn@gmail.com" },
                     License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/license/MIT") }
                 });
