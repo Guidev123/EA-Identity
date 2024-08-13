@@ -13,14 +13,11 @@ public class AuthController : MainController
 {
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly UserManager<IdentityUser> _userManager;
-    private readonly AppSettings _appSettings;
     private readonly IJasonWebToken _jwt;
-    public AuthController(IOptions<AppSettings> appSettings,
-                          SignInManager<IdentityUser> signInManager,
+    public AuthController(SignInManager<IdentityUser> signInManager,
                           UserManager<IdentityUser> userManager,
                           IJasonWebToken jwt)
     {
-        _appSettings = appSettings.Value;
         _signInManager = signInManager;
         _userManager = userManager;
         _jwt = jwt;
@@ -39,15 +36,9 @@ public class AuthController : MainController
 
         var result = await _userManager.CreateAsync(user, registerUser.Password);
 
-        if (result.Succeeded)
-        {
-            return CustomResponse(await _jwt.JwtGenerator(user.Email));
-        }
+        if (result.Succeeded) return CustomResponse(await _jwt.JwtGenerator(user.Email));
 
-        foreach (var error in result.Errors)
-        {
-            AddProcessError(error.Description);
-        }
+        foreach (var error in result.Errors) AddProcessError(error.Description);
 
         return CustomResponse(registerUser);
     }
