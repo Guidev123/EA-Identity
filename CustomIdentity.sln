@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomIdentity.API", "src\CustomIdentity.API\CustomIdentity.API.csproj", "{36C289AC-B0F3-4AF9-9F0B-02EBE4B4D657}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomIdentity.API", "src\CustomIdentity.API\CustomIdentity.API.csproj", "{36C289AC-B0F3-4AF9-9F0B-02EBE4B4D657}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "service", "service", "{6121F80B-023B-4B3F-B63A-9F9542C2E17B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +20,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{36C289AC-B0F3-4AF9-9F0B-02EBE4B4D657} = {6121F80B-023B-4B3F-B63A-9F9542C2E17B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31E85314-1E0A-4E97-8E30-7E6880695234}
