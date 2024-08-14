@@ -10,7 +10,7 @@ namespace CustomIdentity.API.Controllers
         {
             protected ICollection<string> Errors = new List<string>();
 
-            protected ActionResult CustomResponse(object result = null)
+            protected ActionResult CustomResponse(object? result = null)
             {
                 if (OperacaoValida()) return Ok(result);
 
@@ -31,20 +31,11 @@ namespace CustomIdentity.API.Controllers
                 return CustomResponse();
             }
 
-            protected void AddProcessError(string error)
-            {
-                Errors.Add(error);
-            }
+            protected void AddProcessError(string error) => Errors.Add(error);
 
-            protected void ClearProcessErrors()
-            {
-                Errors.Clear();
-            }
+            protected void ClearProcessErrors() => Errors.Clear();
 
-            protected bool OperacaoValida()
-            {
-                return !Errors.Any();
-            }
+            protected bool OperacaoValida() => !Errors.Any();
         }
     }
 }
