@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CustomIdentity.API.Data
 {
-    public class AuthDbContext : IdentityDbContext
+    public class AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options) : IdentityDbContext(options)
     {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
     }
 }

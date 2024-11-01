@@ -1,47 +1,34 @@
 ﻿using CustomIdentity.API.Controllers.FreelanceCoders.Core.Controllers;
 using CustomIdentity.API.DTOs;
-using CustomIdentity.API.Extensions;
-using CustomIdentity.API.Security;
+using CustomIdentity.API.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Manage.Internal;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using static CustomIdentity.API.DTOs.UserDTO;
 
 namespace CustomIdentity.API.Controllers;
 
-[Route("api/auth")]
-public class AuthController : MainController
+[Route("api/v1/authentication")]
+public class IdentityController(SignInManager<IdentityUser> signInManager,
+                      UserManager<IdentityUser> userManager,
+                      IAuthenticationService jwt) : MainController
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly IJasonWebToken _jwt;
-    public AuthController(SignInManager<IdentityUser> signInManager,
-                          UserManager<IdentityUser> userManager,
-                          IJasonWebToken jwt)
-    {
-        _signInManager = signInManager;
-        _userManager = userManager;
-        _jwt = jwt;
-    }
+    private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+    private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly IAuthenticationService _jwt = jwt;
+
     [HttpPost("register")]
     public async Task<ActionResult> RegisterAsync(RegisterUserDTO registerUser)
     {
         if (!ModelState.IsValid) return CustomResponse(ModelState);
 
-        var user = new IdentityUser
-        {
-            UserName = registerUser.Email,
-            Email = registerUser.Email,
-            EmailConfirmed = true
-        };
+        var user = RegisterUserDTO.MapToIdentity(registerUser);
 
         var result = await _userManager.CreateAsync(user, registerUser.Password);
 
-        if (result.Succeeded) return CustomResponse(await _jwt.JwtGenerator(user.Email));
+        if (result.Succeeded)
+            return CustomResponse(await _jwt.JwtGenerator(user));
 
-        foreach (var error in result.Errors) AddProcessError(error.Description);
+        foreach (var error in result.Errors)
+            AddProcessError(error.Description);
 
         return CustomResponse(registerUser);
     }
@@ -51,31 +38,37 @@ public class AuthController : MainController
     {
         if (!ModelState.IsValid) return CustomResponse(ModelState);
 
+        var user = LoginUserDTO.MapToIdentity(loginUser);
+
         var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
-        if (result.Succeeded) return CustomResponse(await _jwt.JwtGenerator(loginUser.Email));
+        if (result.Succeeded)
+            return CustomResponse(await _jwt.JwtGenerator(user));
 
         if (result.IsLockedOut)
         {
-            AddProcessError("O usuario foi temporariamente bloqueado por tentativas inválidas ");
+            AddProcessError("The user has been temporarily locked out due to invalid attempts");
             return CustomResponse(loginUser);
         }
 
-        AddProcessError("Usuario ou senha incorretos");
+        AddProcessError("Incorrect username or password");
         return CustomResponse(loginUser);
     }
+
     [HttpPut("change-password")]
     public async Task<ActionResult> ChangePasswordAsync(ChangeUserPasswordDTO changeUserPassword)
     {
-        if (!ModelState.IsValid) return CustomResponse(ModelState);
+        if (!ModelState.IsValid)
+            return CustomResponse(ModelState);
 
         var user = await _userManager.FindByEmailAsync(changeUserPassword.Email);
-        if (user == null) return NotFound("Usuário não encontrado");
+        if (user is null)
+            return NotFound("User not found");
 
         var checkPasswordResult = await _userManager.CheckPasswordAsync(user, changeUserPassword.OldPassword);
         if (!checkPasswordResult)
         {
-            AddProcessError("Senha antiga incorreta");
+            AddProcessError("Incorrect password");
             return CustomResponse(changeUserPassword);
         }
 
@@ -89,11 +82,10 @@ public class AuthController : MainController
         return CustomResponse(changeUserPassword);
     }
 
-    [HttpPost]
+    [HttpPost("logout")]
     public async Task<ActionResult> LogoutAsync()
     {
         await _signInManager.SignOutAsync();
         return CustomResponse();
     }
-
 }

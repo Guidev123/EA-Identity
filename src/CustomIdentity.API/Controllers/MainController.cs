@@ -8,16 +8,15 @@ namespace CustomIdentity.API.Controllers
         [ApiController]
         public abstract class MainController : ControllerBase
         {
-            protected ICollection<string> Errors = new List<string>();
-
+            protected ICollection<string> Errors = [];
             protected ActionResult CustomResponse(object? result = null)
             {
-                if (OperacaoValida()) return Ok(result);
+                if (ValidOperation()) return Ok(result);
 
                 return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]>
-            {
-                {"Mensagens", Errors.ToArray() }
-            }));
+                {
+                    {"Mensagens", Errors.ToArray() }
+                }));
             }
             protected ActionResult CustomResponse(ModelStateDictionary modelState)
             {
@@ -30,12 +29,9 @@ namespace CustomIdentity.API.Controllers
 
                 return CustomResponse();
             }
-
             protected void AddProcessError(string error) => Errors.Add(error);
-
             protected void ClearProcessErrors() => Errors.Clear();
-
-            protected bool OperacaoValida() => !Errors.Any();
+            protected bool ValidOperation() => Errors.Count == 0;
         }
     }
 }

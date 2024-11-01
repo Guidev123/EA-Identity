@@ -1,21 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace CustomIdentity.API.DTOs
 {
-    public partial class UserDTO
+    public class RegisterUserDTO
     {
-        public class RegisterUserDTO
+        [Required(ErrorMessage = "The {0} field is required")]
+        [EmailAddress(ErrorMessage = "The {0} field is in an invalid format")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "The {0} field is required")]
+        [StringLength(100, ErrorMessage = "The {0} field must be between {2} and {1} characters", MinimumLength = 6)]
+        public string Password { get; set; } = string.Empty;
+
+        [Compare("Password", ErrorMessage = "The passwords do not match.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+
+        public static IdentityUser MapToIdentity(RegisterUserDTO dto) => new()
         {
-            [Required(ErrorMessage = "O campo {0} é obrigatório")]
-            [EmailAddress(ErrorMessage = "O campo {0} está em formato inválido")]
-            public string Email { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "O campo {0} é obrigatório")]
-            [StringLength(100, ErrorMessage = "O campo {0} precisa ter entre {2} e {1} caracteres", MinimumLength = 6)]
-            public string Password { get; set; } = string.Empty;
-
-            [Compare("Password", ErrorMessage = "As senhas não conferem.")]
-            public string ConfirmPassword { get; set; } = string.Empty;
-        }
+            UserName = dto.Email,
+            Email = dto.Email,
+            EmailConfirmed = true
+        };
     }
 }

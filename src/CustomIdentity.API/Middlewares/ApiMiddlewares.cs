@@ -1,9 +1,7 @@
 ﻿using CustomIdentity.API.Data;
-using CustomIdentity.API.Extensions;
-using CustomIdentity.API.Security;
+using CustomIdentity.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CustomIdentity.API.Middlewares
 {
@@ -11,7 +9,7 @@ namespace CustomIdentity.API.Middlewares
     {
         public static void AddDbContextMiddleware(this WebApplicationBuilder builder)
         {
-            builder.Services.AddDbContext<AuthDbContext>(opt =>
+            builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
                     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         }
         public static void AddEnviromentMiddleware(this WebApplicationBuilder builder)
@@ -31,15 +29,14 @@ namespace CustomIdentity.API.Middlewares
         }
         public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
         {
-            builder.Services.AddTransient<IJasonWebToken, JasonWebToken>();
+            builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
         }
 
         public static void AddIdentityMiddleware(this WebApplicationBuilder builder)
         {
             builder.Services.AddDefaultIdentity<IdentityUser>()
                     .AddRoles<IdentityRole>()
-                    .AddEntityFrameworkStores<AuthDbContext>()
-                    .AddErrorDescriber<IdentityCustomMessages>()
+                    .AddEntityFrameworkStores<AuthenticationDbContext>()
                     .AddDefaultTokenProviders();
         }
 

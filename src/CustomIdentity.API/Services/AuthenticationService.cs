@@ -1,22 +1,19 @@
-﻿using CustomIdentity.API.Extensions.Exceptions;
+﻿using CustomIdentity.API.DTOs;
 using CustomIdentity.API.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
-using static CustomIdentity.API.DTOs.UserDTO;
 
-namespace CustomIdentity.API.Security
+namespace CustomIdentity.API.Services
 {
-    public class JasonWebToken(IOptions<AppSettings> appSettings,
-                          SignInManager<IdentityUser> signInManager,
-                          UserManager<IdentityUser> userManager) : IJasonWebToken
+    public class AuthenticationService(IOptions<JsonWebTokenData> appSettings,
+                          UserManager<IdentityUser> userManager) : IAuthenticationService
     {
-        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
         private readonly UserManager<IdentityUser> _userManager = userManager;
-        private readonly AppSettings _appSettings = appSettings.Value;
+        private readonly JsonWebTokenData _appSettings = appSettings.Value;
 
         public string EncodingToken(ClaimsIdentity identityClaims)
         {
@@ -24,21 +21,18 @@ namespace CustomIdentity.API.Security
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = _appSettings.Emissor,
-                Audience = _appSettings.ValidoEm,
+                Issuer = _appSettings.Issuer,
+                Audience = _appSettings.ValidAt,
                 Subject = identityClaims,
-                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiracaoHoras),
+                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiresIn),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             });
 
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<LoginResponseDTO> JwtGenerator(string email)
+        public async Task<LoginResponseDTO> JwtGenerator(IdentityUser user)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user is null) throw new UserNullException();
-
             var claims = await _userManager.GetClaimsAsync(user);
 
             var identityClaims = await GetUserClaims(claims, user);
@@ -72,7 +66,7 @@ namespace CustomIdentity.API.Security
             return new LoginResponseDTO
             {
                 AccessToken = encodedToken,
-                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiracaoHoras).TotalSeconds,
+                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiresIn).TotalSeconds,
                 UserToken = new UserTokenDTO
                 {
                     Id = user.Id,
