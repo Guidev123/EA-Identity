@@ -1,4 +1,4 @@
-﻿namespace CustomIdentity.API.Extensions
+﻿namespace IdentityService.API.Extensions
 {
     public class JsonWebTokenData
     {

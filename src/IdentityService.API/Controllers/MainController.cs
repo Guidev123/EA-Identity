@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CustomIdentity.API.Controllers
+namespace IdentityService.API.Controllers
 {
     namespace FreelanceCoders.Core.Controllers
     {

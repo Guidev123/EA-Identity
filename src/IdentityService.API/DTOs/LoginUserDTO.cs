@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace CustomIdentity.API.DTOs
+namespace IdentityService.API.DTOs
 {
     public class LoginUserDTO
     {

@@ -1,8 +1,8 @@
-﻿using CustomIdentity.API.DTOs;
+﻿using IdentityService.API.DTOs;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace CustomIdentity.API.Services
+namespace IdentityService.API.Services
 {
     public interface IAuthenticationService
     {

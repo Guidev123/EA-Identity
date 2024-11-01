@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace CustomIdentity.API.Middlewares
+namespace IdentityService.API.Middlewares
 {
     public static class SwaggerMiddleware
     {

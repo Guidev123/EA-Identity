@@ -1,5 +1,5 @@
-﻿using CustomIdentity.API.DTOs;
-using CustomIdentity.API.Extensions;
+﻿using IdentityService.API.DTOs;
+using IdentityService.API.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace CustomIdentity.API.Services
+namespace IdentityService.API.Services
 {
     public class AuthenticationService(IOptions<JsonWebTokenData> appSettings,
                           UserManager<IdentityUser> userManager) : IAuthenticationService

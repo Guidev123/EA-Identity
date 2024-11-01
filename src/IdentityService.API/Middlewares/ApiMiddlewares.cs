@@ -1,9 +1,10 @@
-﻿using CustomIdentity.API.Data;
+﻿using CustomIdentity.API.Middlewares;
 using CustomIdentity.API.Services;
+using IdentityService.API.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace CustomIdentity.API.Middlewares
+namespace IdentityService.API.Middlewares
 {
     public static class ApiMiddlewares
     {

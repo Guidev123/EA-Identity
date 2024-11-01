@@ -1,9 +1,9 @@
-﻿using CustomIdentity.API.Extensions;
+﻿using IdentityService.API.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace CustomIdentity.API.Middlewares
+namespace IdentityService.API.Middlewares
 {
     public static class JwtMiddleware
     {

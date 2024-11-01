@@ -1,4 +1,4 @@
-﻿namespace CustomIdentity.API.DTOs
+﻿namespace IdentityService.API.DTOs
 {
     public class ChangeUserPasswordDTO
     {

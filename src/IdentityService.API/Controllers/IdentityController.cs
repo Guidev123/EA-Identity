@@ -4,7 +4,7 @@ using CustomIdentity.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CustomIdentity.API.Controllers;
+namespace IdentityService.API.Controllers;
 
 [Route("api/v1/authentication")]
 public class IdentityController(SignInManager<IdentityUser> signInManager,

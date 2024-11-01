@@ -1,4 +1,4 @@
-using CustomIdentity.API.Middlewares;
+using IdentityService.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddEnviromentMiddleware();
