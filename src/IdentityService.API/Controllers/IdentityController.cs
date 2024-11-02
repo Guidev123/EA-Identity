@@ -1,5 +1,4 @@
-﻿using IdentityService.API.Controllers.FreelanceCoders.Core.Controllers;
-using IdentityService.API.DTOs;
+﻿using IdentityService.API.DTOs;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
