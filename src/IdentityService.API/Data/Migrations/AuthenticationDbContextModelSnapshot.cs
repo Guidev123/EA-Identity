@@ -22,7 +22,7 @@ namespace IdentityService.API.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("varchar(180)");
@@ -43,9 +43,10 @@ namespace IdentityService.API.Data.Migrations
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("IdentityRole", (string)null);
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -57,19 +58,20 @@ namespace IdentityService.API.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("ClaimValue")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("RoleId")
+                        .IsRequired()
                         .HasColumnType("varchar(180)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("IdentityRoleClaim", (string)null);
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
@@ -85,7 +87,7 @@ namespace IdentityService.API.Data.Migrations
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(180)
+                        .HasMaxLength(256)
                         .HasColumnType("varchar(180)");
 
                     b.Property<bool>("EmailConfirmed")
@@ -98,18 +100,17 @@ namespace IdentityService.API.Data.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(180)
+                        .HasMaxLength(256)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(180)
+                        .HasMaxLength(256)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
                         .HasColumnType("varchar(180)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
@@ -122,20 +123,20 @@ namespace IdentityService.API.Data.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .HasMaxLength(180)
+                        .HasMaxLength(256)
                         .HasColumnType("varchar(180)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .IsUnique()
-                        .HasFilter("[NormalizedEmail] IS NOT NULL");
+                        .HasDatabaseName("EmailIndex");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("IdentityUser", (string)null);
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -147,11 +148,9 @@ namespace IdentityService.API.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("ClaimValue")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("UserId")
@@ -162,7 +161,7 @@ namespace IdentityService.API.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IdentityClaim", (string)null);
+                    b.ToTable("AspNetUserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -176,7 +175,6 @@ namespace IdentityService.API.Data.Migrations
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasMaxLength(255)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("UserId")
@@ -187,7 +185,7 @@ namespace IdentityService.API.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IdentityUserLogin", (string)null);
+                    b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -200,7 +198,9 @@ namespace IdentityService.API.Data.Migrations
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.ToTable("IdentityUserRole", (string)null);
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -209,21 +209,28 @@ namespace IdentityService.API.Data.Migrations
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("LoginProvider")
-                        .IsRequired()
-                        .HasMaxLength(120)
+                        .HasMaxLength(128)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(180)
+                        .HasMaxLength(128)
                         .HasColumnType("varchar(180)");
 
                     b.Property<string>("Value")
                         .HasColumnType("varchar(180)");
 
-                    b.HasKey("UserId");
+                    b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("IdentityUserToken", (string)null);
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -246,6 +253,12 @@ namespace IdentityService.API.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
