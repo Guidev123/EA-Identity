@@ -1,6 +1,5 @@
-﻿using CustomIdentity.API.Middlewares;
-using CustomIdentity.API.Services;
-using IdentityService.API.Data;
+﻿using IdentityService.API.Data;
+using IdentityService.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +12,7 @@ namespace IdentityService.API.Middlewares
             builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
                     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         }
+
         public static void AddEnviromentMiddleware(this WebApplicationBuilder builder)
         {
 
@@ -28,10 +28,8 @@ namespace IdentityService.API.Middlewares
             builder.Services.AddJwtConfiguration(builder.Configuration);
             builder.Services.AddSwaggerConfig();
         }
-        public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
-        }
+
+        public static void AddDependenciesMiddleware(this WebApplicationBuilder builder) => builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
 
         public static void AddIdentityMiddleware(this WebApplicationBuilder builder)
         {
@@ -41,7 +39,7 @@ namespace IdentityService.API.Middlewares
                     .AddDefaultTokenProviders();
         }
 
-        public static void UseSecurity(this IApplicationBuilder app, IWebHostEnvironment environment)
+        public static void UseSecurity(this IApplicationBuilder app)
         {
             app.UseSwaggerConfig();
 
@@ -60,5 +58,4 @@ namespace IdentityService.API.Middlewares
             });
         }
     }
-
 }

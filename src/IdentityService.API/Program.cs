@@ -7,5 +7,5 @@ builder.AddDependenciesMiddleware();
 builder.AddIdentityMiddleware();
 
 var app = builder.Build();
-app.UseSecurity(app.Environment);
+app.UseSecurity();
 app.Run();
