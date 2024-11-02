@@ -10,7 +10,7 @@ namespace IdentityService.API.Controllers
         protected ActionResult CustomResponse(object? result = null) =>
             ValidOperation() ? Ok(result) : BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]>
             {
-                {"Mensagens", Errors.ToArray() }
+                {"Messages", Errors.ToArray() }
             }));
 
         protected ActionResult CustomResponse(ModelStateDictionary modelState)

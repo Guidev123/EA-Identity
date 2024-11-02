@@ -1,5 +1,6 @@
 ﻿using IdentityService.API.DTOs;
 using IdentityService.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,6 +55,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         return CustomResponse(loginUser);
     }
 
+    [Authorize]
     [HttpPut("change-password")]
     public async Task<ActionResult> ChangePasswordAsync(ChangeUserPasswordDTO changeUserPassword)
     {
@@ -81,6 +83,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         return CustomResponse(changeUserPassword);
     }
 
+    [Authorize]
     [HttpPost("logout")]
     public async Task<ActionResult> LogoutAsync()
     {
