@@ -6,6 +6,11 @@ namespace IdentityService.API.DTOs
     public class RegisterUserDTO
     {
         [Required(ErrorMessage = "The {0} field is required")]
+        public string Name { get; set; } = string.Empty;
+        [Required(ErrorMessage = "The {0} field is required")]
+        public string Cpf { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "The {0} field is required")]
         [EmailAddress(ErrorMessage = "The {0} field is in an invalid format")]
         public string Email { get; set; } = string.Empty;
 

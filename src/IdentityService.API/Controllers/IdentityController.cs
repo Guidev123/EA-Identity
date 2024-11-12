@@ -1,4 +1,7 @@
-﻿using IdentityService.API.DTOs;
+﻿using EA.CommonLib.MessageBus;
+using EA.CommonLib.MessageBus.Integration;
+using IdentityService.API.DTOs;
+using IdentityService.API.IntegrationEvents;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,11 +12,13 @@ namespace IdentityService.API.Controllers;
 [Route("api/v1/authentication")]
 public class IdentityController(SignInManager<IdentityUser> signInManager,
                       UserManager<IdentityUser> userManager,
-                      IAuthenticationService jwt) : MainController
+                      IAuthenticationService jwt,
+                      IMessageBus messageBus) : MainController
 {
     private readonly SignInManager<IdentityUser> _signInManager = signInManager;
     private readonly UserManager<IdentityUser> _userManager = userManager;
     private readonly IAuthenticationService _jwt = jwt;
+    private readonly IMessageBus _messageBus = messageBus;
 
     [HttpPost("register")]
     public async Task<ActionResult> RegisterAsync(RegisterUserDTO registerUser)
@@ -25,12 +30,33 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         var result = await _userManager.CreateAsync(user, registerUser.Password);
 
         if (result.Succeeded)
+        {
+            await RegisterCustomer(registerUser);
+
             return CustomResponse(await _jwt.JwtGenerator(user));
+        }
 
         foreach (var error in result.Errors)
             AddProcessError(error.Description);
 
         return CustomResponse(registerUser);
+    }
+
+    private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
+    {
+        var user = await _userManager.FindByEmailAsync(userDTO.Email);
+        var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user!.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
+
+        try
+        {
+            return await _messageBus.RequestAsync<RegisteredUserIntegrationEvent, ResponseMessage>(registeredUser);
+        }
+
+        catch
+        {
+            await _userManager.DeleteAsync(user);
+            throw;
+        }
     }
 
     [HttpPost("login")]

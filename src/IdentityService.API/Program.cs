@@ -5,6 +5,7 @@ builder.AddEnviromentMiddleware();
 builder.AddDbContextMiddleware();
 builder.AddDependenciesMiddleware();
 builder.AddIdentityMiddleware();
+builder.Services.AddMessageBusConfiguration(builder.Configuration);
 
 var app = builder.Build();
 app.UseSecurity();
