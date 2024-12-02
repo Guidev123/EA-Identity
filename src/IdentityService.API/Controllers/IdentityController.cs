@@ -1,7 +1,7 @@
 ﻿using EA.CommonLib.MessageBus;
 using EA.CommonLib.MessageBus.Integration;
+using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
 using IdentityService.API.DTOs;
-using IdentityService.API.IntegrationEvents;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -45,7 +45,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
     private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
     {
         var user = await _userManager.FindByEmailAsync(userDTO.Email);
-        var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user!.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
+        var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
 
         try
         {
@@ -55,7 +55,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         catch
         {
             await _userManager.DeleteAsync(user);
-            throw;
+          throw;
         }
     }
 
