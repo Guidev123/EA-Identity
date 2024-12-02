@@ -31,7 +31,13 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
 
         if (result.Succeeded)
         {
-            await RegisterCustomer(registerUser);
+            var customerResult = await RegisterCustomer(registerUser);
+
+            if (!customerResult.ValidationResult.IsValid)
+            {
+                await _userManager.DeleteAsync(user);
+                return CustomResponse(customerResult.ValidationResult);
+            }
 
             return CustomResponse(await _jwt.JwtGenerator(user));
         }
@@ -55,7 +61,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         catch
         {
             await _userManager.DeleteAsync(user);
-          throw;
+            throw;
         }
     }
 
