@@ -1,4 +1,5 @@
-﻿using EA.CommonLib.MessageBus;
+﻿using EA.CommonLib.Controllers;
+using EA.CommonLib.MessageBus;
 using EA.CommonLib.MessageBus.Integration;
 using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
 using IdentityService.API.DTOs;
@@ -88,7 +89,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
     }
 
     [Authorize]
-    [HttpPut("change-password")]
+    [HttpPatch("change-password")]
     public async Task<ActionResult> ChangePasswordAsync(ChangeUserPasswordDTO changeUserPassword)
     {
         if (!ModelState.IsValid)
