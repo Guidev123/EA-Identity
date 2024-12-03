@@ -29,8 +29,8 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return new Response<ChangeUserPasswordDTO>(null, 400, errors);
+                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
+                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", errors);
             }
 
             var user = await _userManager.FindByEmailAsync(dto.Email);
@@ -75,8 +75,8 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return new Response<LoginResponseDTO>(null, 400, errors);
+                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
+                return new Response<LoginResponseDTO>(null, 400, "Error", errors);
             }
 
             var user = LoginUserDTO.MapToIdentity(dto);
@@ -100,8 +100,8 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
-                return new Response<LoginResponseDTO>(null, 400, errors);
+                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
+                return new Response<LoginResponseDTO>(null, 400, "Error", errors);
             }
 
             var user = RegisterUserDTO.MapToIdentity(dto);
@@ -115,16 +115,15 @@ namespace IdentityService.API.Services
                 if (!customerResult.ValidationResult.IsValid)
                 {
                     await _userManager.DeleteAsync(user);
-                    var errors = string.Join(", ", customerResult.ValidationResult.Errors.Select(e => e.ErrorMessage));
-
-                    return new Response<LoginResponseDTO>(null, 400, errors);
+                    string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
+                    return new Response<LoginResponseDTO>(null, 400, "Error", errors);
                 }
 
                 return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, "Success");
             }
 
-            var errorsIdentity = string.Join(" | ", result.Errors.Select(e => e.Description));
-            return new Response<LoginResponseDTO>(null, 400, errorsIdentity);
+            string[] errorsIdentity = result.Errors.Select(e => e.Description).ToArray();
+            return new Response<LoginResponseDTO>(null, 400, "Error", errorsIdentity);
         }
 
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
