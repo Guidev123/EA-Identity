@@ -1,81 +1,148 @@
-﻿using IdentityService.API.DTOs;
-using IdentityService.API.Extensions;
+﻿using EA.CommonLib.MessageBus;
+using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
+using EA.CommonLib.MessageBus.Integration;
+using EA.CommonLib.Responses;
+using IdentityService.API.DTOs;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
+using FluentValidation;
+using FluentValidation.Results;
+using IdentityService.API.DTOs.Validations;
 
 namespace IdentityService.API.Services
 {
-    public class AuthenticationService(IOptions<JsonWebTokenData> appSettings,
-                          UserManager<IdentityUser> userManager) : IAuthenticationService
+    public class AuthenticationService(SignInManager<IdentityUser> signInManager,
+                                       UserManager<IdentityUser> userManager,
+                                       ISecurityService jwt,
+                                       IMessageBus messageBus)
+                                     : IAuthenticationService
     {
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
         private readonly UserManager<IdentityUser> _userManager = userManager;
-        private readonly JsonWebTokenData _appSettings = appSettings.Value;
+        private readonly ISecurityService _jwt = jwt;
+        private readonly IMessageBus _messageBus = messageBus;
 
-        public string EncodingToken(ClaimsIdentity identityClaims)
+        public async Task<Response<ChangeUserPasswordDTO>> ChangePasswordAsync(ChangeUserPasswordDTO dto)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+            var validationResult = ValidateEntity(new ChangeUserPasswordValidation(), dto);
+
+            if (!validationResult.IsValid)
             {
-                Issuer = _appSettings.Issuer,
-                Audience = _appSettings.ValidAt,
-                Subject = identityClaims,
-                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiresIn),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            });
-
-            return tokenHandler.WriteToken(token);
-        }
-
-        public async Task<LoginResponseDTO> JwtGenerator(IdentityUser user)
-        {
-            var claims = await _userManager.GetClaimsAsync(user);
-
-            var identityClaims = await GetUserClaims(claims, user);
-            var encodedToken = EncodingToken(identityClaims);
-
-            return GetTokenResponse(encodedToken, user, claims);
-        }
-
-        public async Task<ClaimsIdentity> GetUserClaims(ICollection<Claim> claims, IdentityUser user)
-        {
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString()));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.UtcNow).ToString(), ClaimValueTypes.Integer64));
-            foreach (var userRole in userRoles)
-            {
-                claims.Add(new Claim("role", userRole));
+                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                return new Response<ChangeUserPasswordDTO>(null, 400, errors);
             }
 
-            var identityClaims = new ClaimsIdentity();
-            identityClaims.AddClaims(claims);
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user is null) return new Response<ChangeUserPasswordDTO>(null, 404);
 
-            return identityClaims;
-        }
-
-        public LoginResponseDTO GetTokenResponse(string encodedToken, IdentityUser user, IEnumerable<Claim> claims)
-        {
-            return new LoginResponseDTO
+            var checkPasswordResult = await _userManager.CheckPasswordAsync(user, dto.OldPassword);
+            if (!checkPasswordResult)
             {
-                AccessToken = encodedToken,
-                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiresIn).TotalSeconds,
-                UserToken = new UserTokenDTO
-                {
-                    Id = user.Id,
-                    Email = user.Email ?? string.Empty,
-                    Claims = claims.Select(c => new ClaimDTO { Type = c.Type, Value = c.Value })
-                }
-            };
+                return new Response<ChangeUserPasswordDTO>(null, 400, "Your old password is wrong");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
+            if (!result.Succeeded)
+            {
+                return new Response<ChangeUserPasswordDTO>(null, 400, "You can not change your password");
+            }
+
+            return new Response<ChangeUserPasswordDTO>(null, 200);
         }
-        private static long ToUnixEpochDate(DateTime date)
-           => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
+
+        public async Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id)
+        {
+            var deleteEvent = new DeleteCustomerIntegrationEvent(id);
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null) return new Response<DeleteCustomerIntegrationEvent>(null, 404);
+
+            var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
+
+            if (result.ValidationResult.IsValid)
+            {
+                await _userManager.DeleteAsync(user);
+                return new Response<DeleteCustomerIntegrationEvent>(null, 200);
+            }
+
+            return new Response<DeleteCustomerIntegrationEvent>(null, 400, "You can not delete this user now");
+        }
+
+        public async Task<Response<LoginResponseDTO>> LoginAsync(LoginUserDTO dto)
+        {
+            var validationResult = ValidateEntity(new LoginUserValidation(), dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                return new Response<LoginResponseDTO>(null, 400, errors);
+            }
+
+            var user = LoginUserDTO.MapToIdentity(dto);
+
+            var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, true);
+
+            if (result.Succeeded)
+                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success!");
+
+            if (result.IsLockedOut)
+            {
+                return new Response<LoginResponseDTO>(null, 400, "Your account is locked");
+            }
+
+            return new Response<LoginResponseDTO>(null, 400, "Your credentials are wrong");
+        }
+
+        public async Task<Response<LoginResponseDTO>> RegisterAsync(RegisterUserDTO dto)
+        {
+            var validationResult = ValidateEntity(new RegisterUserValidation(), dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
+                return new Response<LoginResponseDTO>(null, 400, errors);
+            }
+
+            var user = RegisterUserDTO.MapToIdentity(dto);
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+
+            if (result.Succeeded)
+            {
+                var customerResult = await RegisterCustomer(dto);
+
+                if (!customerResult.ValidationResult.IsValid)
+                {
+                    await _userManager.DeleteAsync(user);
+                    var errors = string.Join(", ", customerResult.ValidationResult.Errors.Select(e => e.ErrorMessage));
+
+                    return new Response<LoginResponseDTO>(null, 400, errors);
+                }
+
+                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success");
+            }
+
+            return new Response<LoginResponseDTO>(null, 400, "Something has failed during your authentication");
+        }
+
+        private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
+        {
+            var user = await _userManager.FindByEmailAsync(userDTO.Email);
+            var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
+
+            try
+            {
+                return await _messageBus.RequestAsync<RegisteredUserIntegrationEvent, ResponseMessage>(registeredUser);
+            }
+
+            catch
+            {
+                await _userManager.DeleteAsync(user);
+                throw;
+            }
+        }
+
+        protected ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
+        : AbstractValidator<TE> where TE : class => validation.Validate(entity);
     }
 }

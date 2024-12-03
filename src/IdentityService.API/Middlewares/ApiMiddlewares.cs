@@ -33,7 +33,11 @@ namespace IdentityService.API.Middlewares
         {
             services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"));
         }
-        public static void AddDependenciesMiddleware(this WebApplicationBuilder builder) => builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
+        public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddTransient<ISecurityService, SecurityService>();
+        }
 
         public static void AddIdentityMiddleware(this WebApplicationBuilder builder)
         {
