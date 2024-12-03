@@ -1,7 +1,8 @@
-﻿using EA.CommonLib.Controllers;
-using EA.CommonLib.MessageBus;
+﻿using EA.CommonLib.MessageBus;
 using EA.CommonLib.MessageBus.Integration;
+using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
 using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
+using EA.CommonLib.Response;
 using IdentityService.API.DTOs;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace IdentityService.API.Controllers;
 public class IdentityController(SignInManager<IdentityUser> signInManager,
                       UserManager<IdentityUser> userManager,
                       IAuthenticationService jwt,
-                      IMessageBus messageBus) : MainController
+                      IMessageBus messageBus) : ControllerBase
 {
     private readonly SignInManager<IdentityUser> _signInManager = signInManager;
     private readonly UserManager<IdentityUser> _userManager = userManager;
@@ -24,7 +25,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
     [HttpPost("register")]
     public async Task<ActionResult> RegisterAsync(RegisterUserDTO registerUser)
     {
-        if (!ModelState.IsValid) return CustomResponse(ModelState);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var user = RegisterUserDTO.MapToIdentity(registerUser);
 
@@ -37,16 +38,13 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
             if (!customerResult.ValidationResult.IsValid)
             {
                 await _userManager.DeleteAsync(user);
-                return CustomResponse(customerResult.ValidationResult);
+                return BadRequest();
             }
 
-            return CustomResponse(await _jwt.JwtGenerator(user));
+            return Ok(await _jwt.JwtGenerator(user));
         }
 
-        foreach (var error in result.Errors)
-            AddProcessError(error.Description);
-
-        return CustomResponse(registerUser);
+        return BadRequest(registerUser);
     }
 
     private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
@@ -69,31 +67,28 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
     [HttpPost("login")]
     public async Task<ActionResult> LoginAsync(LoginUserDTO loginUser)
     {
-        if (!ModelState.IsValid) return CustomResponse(ModelState);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var user = LoginUserDTO.MapToIdentity(loginUser);
 
         var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
         if (result.Succeeded)
-            return CustomResponse(await _jwt.JwtGenerator(user));
+            return Ok(await _jwt.JwtGenerator(user));
 
         if (result.IsLockedOut)
         {
-            AddProcessError("The user has been temporarily locked out due to invalid attempts");
-            return CustomResponse(loginUser);
+            return BadRequest(loginUser);
         }
 
-        AddProcessError("Incorrect username or password");
-        return CustomResponse(loginUser);
+        return BadRequest(loginUser);
     }
 
     [Authorize]
     [HttpPatch("change-password")]
     public async Task<ActionResult> ChangePasswordAsync(ChangeUserPasswordDTO changeUserPassword)
     {
-        if (!ModelState.IsValid)
-            return CustomResponse(ModelState);
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var user = await _userManager.FindByEmailAsync(changeUserPassword.Email);
         if (user is null)
@@ -102,25 +97,35 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         var checkPasswordResult = await _userManager.CheckPasswordAsync(user, changeUserPassword.OldPassword);
         if (!checkPasswordResult)
         {
-            AddProcessError("Incorrect password");
-            return CustomResponse(changeUserPassword);
+            return BadRequest(changeUserPassword);
         }
 
         var result = await _userManager.ChangePasswordAsync(user, changeUserPassword.OldPassword, changeUserPassword.NewPassword);
         if (!result.Succeeded)
         {
-            foreach (var error in result.Errors) AddProcessError(error.Description);
-            return CustomResponse(changeUserPassword);
+            return BadRequest(changeUserPassword);
         }
 
-        return CustomResponse(changeUserPassword);
+        return Ok(changeUserPassword);
     }
 
-    [Authorize]
-    [HttpPost("logout")]
-    public async Task<ActionResult> LogoutAsync()
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteAsync(Guid id)
     {
-        await _signInManager.SignOutAsync();
-        return CustomResponse();
+        var deleteEvent = new DeleteCustomerIntegrationEvent(id);
+
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user is null)
+            return NotFound();
+
+        var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
+
+        if (result.ValidationResult.IsValid)
+        {
+            await _userManager.DeleteAsync(user);
+            return NoContent();
+        }
+
+        return BadRequest();
     }
 }
