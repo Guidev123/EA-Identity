@@ -1,4 +1,5 @@
-﻿using IdentityService.API.DTOs;
+﻿using EA.CommonLib.Controllers;
+using IdentityService.API.DTOs;
 using IdentityService.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ namespace IdentityService.API.Controllers;
 
 [ApiController]
 [Route("api/v1/authentication")]
-public class IdentityController(IAuthenticationService authenticationService) : ControllerBase
+public class IdentityController(IAuthenticationService authenticationService) : MainController
 {
     private readonly IAuthenticationService _authenticationService = authenticationService;
 
@@ -16,7 +17,7 @@ public class IdentityController(IAuthenticationService authenticationService) : 
     {
         var result = await _authenticationService.RegisterAsync(registerUser);
 
-        return result.IsSuccess ? TypedResults.Created() : TypedResults.BadRequest(result);
+        return CustomResponse(result);
     }
 
     [HttpPost("login")]
@@ -24,7 +25,7 @@ public class IdentityController(IAuthenticationService authenticationService) : 
     {
         var result = await _authenticationService.LoginAsync(loginUser);
 
-        return result.IsSuccess ? TypedResults.Ok(result) : TypedResults.BadRequest(result);
+        return CustomResponse(result);
     }
 
     [Authorize]
@@ -33,7 +34,7 @@ public class IdentityController(IAuthenticationService authenticationService) : 
     {
         var result = await _authenticationService.ChangePasswordAsync(changeUserPassword);
 
-        return result.IsSuccess ? TypedResults.NoContent() : TypedResults.BadRequest(result);
+        return CustomResponse(result);
     }
 
     [HttpDelete("{id:guid}")]
@@ -41,6 +42,6 @@ public class IdentityController(IAuthenticationService authenticationService) : 
     {
         var result = await _authenticationService.DeleteAsync(id);
 
-        return result.IsSuccess ? TypedResults.NoContent() : TypedResults.BadRequest(result);
+        return CustomResponse(result);
     }
 }

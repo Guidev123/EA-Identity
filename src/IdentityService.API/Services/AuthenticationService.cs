@@ -34,7 +34,7 @@ namespace IdentityService.API.Services
             }
 
             var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user is null) return new Response<ChangeUserPasswordDTO>(null, 404);
+            if (user is null) return new Response<ChangeUserPasswordDTO>(null, 404, "User not found");
 
             var checkPasswordResult = await _userManager.CheckPasswordAsync(user, dto.OldPassword);
             if (!checkPasswordResult)
@@ -48,7 +48,7 @@ namespace IdentityService.API.Services
                 return new Response<ChangeUserPasswordDTO>(null, 400, "You can not change your password");
             }
 
-            return new Response<ChangeUserPasswordDTO>(null, 200);
+            return new Response<ChangeUserPasswordDTO>(null, 204);
         }
 
         public async Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id)
@@ -56,14 +56,14 @@ namespace IdentityService.API.Services
             var deleteEvent = new DeleteCustomerIntegrationEvent(id);
 
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user is null) return new Response<DeleteCustomerIntegrationEvent>(null, 404);
+            if (user is null) return new Response<DeleteCustomerIntegrationEvent>(null, 404, "User not found");
 
             var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
 
             if (result.ValidationResult.IsValid)
             {
                 await _userManager.DeleteAsync(user);
-                return new Response<DeleteCustomerIntegrationEvent>(null, 200);
+                return new Response<DeleteCustomerIntegrationEvent>(null, 204);
             }
 
             return new Response<DeleteCustomerIntegrationEvent>(null, 400, "You can not delete this user now");
@@ -120,10 +120,11 @@ namespace IdentityService.API.Services
                     return new Response<LoginResponseDTO>(null, 400, errors);
                 }
 
-                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success");
+                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, "Success");
             }
 
-            return new Response<LoginResponseDTO>(null, 400, "Something has failed during your authentication");
+            var errorsIdentity = string.Join(" | ", result.Errors.Select(e => e.Description));
+            return new Response<LoginResponseDTO>(null, 400, errorsIdentity);
         }
 
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
