@@ -2,7 +2,7 @@
 using EA.CommonLib.Responses;
 using IdentityService.API.DTOs;
 
-namespace IdentityService.API.Services
+namespace IdentityService.API.Interfaces
 {
     public interface IAuthenticationService
     {

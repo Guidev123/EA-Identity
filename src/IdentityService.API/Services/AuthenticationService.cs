@@ -8,6 +8,7 @@ using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
 using FluentValidation;
 using FluentValidation.Results;
 using IdentityService.API.DTOs.Validations;
+using IdentityService.API.Interfaces;
 
 namespace IdentityService.API.Services
 {
@@ -142,7 +143,7 @@ namespace IdentityService.API.Services
             }
         }
 
-        protected ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
+        private ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
         : AbstractValidator<TE> where TE : class => validation.Validate(entity);
     }
 }

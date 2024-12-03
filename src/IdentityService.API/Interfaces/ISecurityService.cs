@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace IdentityService.API.Services
+namespace IdentityService.API.Interfaces
 {
     public interface ISecurityService
     {

@@ -1,5 +1,6 @@
 ﻿using EA.CommonLib.MessageBus;
 using IdentityService.API.Data;
+using IdentityService.API.Interfaces;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

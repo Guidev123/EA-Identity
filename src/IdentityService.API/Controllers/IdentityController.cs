@@ -1,5 +1,5 @@
 ﻿using IdentityService.API.DTOs;
-using IdentityService.API.Services;
+using IdentityService.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

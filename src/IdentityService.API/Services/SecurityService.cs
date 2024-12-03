@@ -1,5 +1,6 @@
 ﻿using IdentityService.API.DTOs;
 using IdentityService.API.Extensions;
+using IdentityService.API.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
