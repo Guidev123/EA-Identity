@@ -7,6 +7,7 @@ namespace IdentityService.API.DTOs
     {
         [Required(ErrorMessage = "The {0} field is required")]
         public string Name { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "The {0} field is required")]
         public string Cpf { get; set; } = string.Empty;
 

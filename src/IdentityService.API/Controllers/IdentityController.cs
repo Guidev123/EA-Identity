@@ -2,15 +2,17 @@
 using EA.CommonLib.MessageBus.Integration;
 using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
 using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
-using EA.CommonLib.Response;
+using EA.CommonLib.Responses;
 using IdentityService.API.DTOs;
 using IdentityService.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace IdentityService.API.Controllers;
 
+[ApiController]
 [Route("api/v1/authentication")]
 public class IdentityController(SignInManager<IdentityUser> signInManager,
                       UserManager<IdentityUser> userManager,
@@ -38,13 +40,15 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
             if (!customerResult.ValidationResult.IsValid)
             {
                 await _userManager.DeleteAsync(user);
-                return BadRequest();
+                var errors = string.Join(", ", customerResult.ValidationResult.Errors.Select(e => e.ErrorMessage));
+
+                return BadRequest(new Response<RegisterUserDTO>(null, 400, errors));
             }
 
-            return Ok(await _jwt.JwtGenerator(user));
+            return Ok(new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success"));
         }
 
-        return BadRequest(registerUser);
+        return BadRequest(new Response<RegisterUserDTO>(null, 400, "Something has failed during your authentication"));
     }
 
     private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
@@ -67,21 +71,21 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
     [HttpPost("login")]
     public async Task<ActionResult> LoginAsync(LoginUserDTO loginUser)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid) return BadRequest(new Response<ModelStateDictionary>(ModelState, 400, "Error"));
 
         var user = LoginUserDTO.MapToIdentity(loginUser);
 
         var result = await _signInManager.PasswordSignInAsync(loginUser.Email, loginUser.Password, false, true);
 
         if (result.Succeeded)
-            return Ok(await _jwt.JwtGenerator(user));
+            return Ok(new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success!"));
 
         if (result.IsLockedOut)
         {
-            return BadRequest(loginUser);
+            return BadRequest(new Response<LoginResponseDTO>(null, 400, "Your account is locked"));
         }
 
-        return BadRequest(loginUser);
+        return BadRequest(new Response<RegisterUserDTO>(null, 400, "Your credentials are wrong"));
     }
 
     [Authorize]
@@ -91,22 +95,21 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var user = await _userManager.FindByEmailAsync(changeUserPassword.Email);
-        if (user is null)
-            return NotFound("User not found");
+        if (user is null) return NotFound(new Response<ChangeUserPasswordDTO>(null, 404));
 
         var checkPasswordResult = await _userManager.CheckPasswordAsync(user, changeUserPassword.OldPassword);
         if (!checkPasswordResult)
         {
-            return BadRequest(changeUserPassword);
+            return BadRequest(new Response<ChangeUserPasswordDTO>(null, 400, "Your old password is wrong"));
         }
 
         var result = await _userManager.ChangePasswordAsync(user, changeUserPassword.OldPassword, changeUserPassword.NewPassword);
         if (!result.Succeeded)
         {
-            return BadRequest(changeUserPassword);
+            return BadRequest(new Response<ChangeUserPasswordDTO>(null, 400, "You can not change your password"));
         }
 
-        return Ok(changeUserPassword);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
@@ -115,8 +118,7 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
         var deleteEvent = new DeleteCustomerIntegrationEvent(id);
 
         var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user is null)
-            return NotFound();
+        if (user is null) return NotFound(new Response<DeleteCustomerIntegrationEvent>(null, 404));
 
         var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
 
@@ -126,6 +128,6 @@ public class IdentityController(SignInManager<IdentityUser> signInManager,
             return NoContent();
         }
 
-        return BadRequest();
+        return BadRequest(new Response<DeleteCustomerIntegrationEvent>(null, 400, "You can not delete this user now"));
     }
 }
