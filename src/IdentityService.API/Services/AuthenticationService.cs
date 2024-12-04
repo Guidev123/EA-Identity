@@ -29,23 +29,28 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
-                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", errors);
+                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
             var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user is null) return new Response<ChangeUserPasswordDTO>(null, 404, "User not found");
+            if (user is null)
+            {
+                AddError(validationResult, "User not found");
+                return new Response<ChangeUserPasswordDTO>(null, 404, "Error", GetAllErrors(validationResult));
+            }
 
             var checkPasswordResult = await _userManager.CheckPasswordAsync(user, dto.OldPassword);
             if (!checkPasswordResult)
             {
-                return new Response<ChangeUserPasswordDTO>(null, 400, "Your old password is wrong");
+                AddError(validationResult, "Your old password is wrong");
+                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
             var result = await _userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
             if (!result.Succeeded)
             {
-                return new Response<ChangeUserPasswordDTO>(null, 400, "You can not change your password");
+                AddError(validationResult, "You can not change your password");
+                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
             return new Response<ChangeUserPasswordDTO>(null, 204);
@@ -75,8 +80,7 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
-                return new Response<LoginResponseDTO>(null, 400, "Error", errors);
+                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
             var user = LoginUserDTO.MapToIdentity(dto);
@@ -88,10 +92,12 @@ namespace IdentityService.API.Services
 
             if (result.IsLockedOut)
             {
-                return new Response<LoginResponseDTO>(null, 400, "Your account is locked");
+                AddError(validationResult, "Your account is locked");
+                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
-            return new Response<LoginResponseDTO>(null, 400, "Your credentials are wrong");
+            AddError(validationResult, "Your credentials are wrong");
+            return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
         }
 
         public async Task<Response<LoginResponseDTO>> RegisterAsync(RegisterUserDTO dto)
@@ -100,8 +106,7 @@ namespace IdentityService.API.Services
 
             if (!validationResult.IsValid)
             {
-                string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
-                return new Response<LoginResponseDTO>(null, 400, "Error", errors);
+                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
             }
 
             var user = RegisterUserDTO.MapToIdentity(dto);
@@ -115,17 +120,16 @@ namespace IdentityService.API.Services
                 if (!customerResult.ValidationResult.IsValid)
                 {
                     await _userManager.DeleteAsync(user);
-                    string[] errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
-                    return new Response<LoginResponseDTO>(null, 400, "Error", errors);
+                    return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
                 }
 
                 return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, "Success");
             }
 
-            string[] errorsIdentity = result.Errors.Select(e => e.Description).ToArray();
-            return new Response<LoginResponseDTO>(null, 400, "Error", errorsIdentity);
+            return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrorsIdentity(result));
         }
 
+        #region Helpers
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
         {
             var user = await _userManager.FindByEmailAsync(userDTO.Email);
@@ -145,5 +149,12 @@ namespace IdentityService.API.Services
 
         private ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
         : AbstractValidator<TE> where TE : class => validation.Validate(entity);
+        private void AddError(ValidationResult validationResult, string message) =>
+           validationResult.Errors.Add(new ValidationFailure(string.Empty, message));
+        private string[] GetAllErrors(ValidationResult validationResult) =>
+            validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
+        private string[] GetAllErrorsIdentity(IdentityResult identityResult) =>
+             identityResult.Errors.Select(e => e.Description).ToArray();
+        #endregion
     }
 }
