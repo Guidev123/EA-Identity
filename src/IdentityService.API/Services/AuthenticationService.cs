@@ -9,6 +9,8 @@ using FluentValidation;
 using FluentValidation.Results;
 using IdentityService.API.DTOs.Validations;
 using IdentityService.API.Interfaces;
+using IdentityService.API.Extensions;
+using EA.CommonLib.Helpers;
 
 namespace IdentityService.API.Services
 {
@@ -23,64 +25,13 @@ namespace IdentityService.API.Services
         private readonly ISecurityService _jwt = jwt;
         private readonly IMessageBus _messageBus = messageBus;
 
-        public async Task<Response<ChangeUserPasswordDTO>> ChangePasswordAsync(ChangeUserPasswordDTO dto)
-        {
-            var validationResult = ValidateEntity(new ChangeUserPasswordValidation(), dto);
-
-            if (!validationResult.IsValid)
-            {
-                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
-            }
-
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user is null)
-            {
-                AddError(validationResult, "User not found");
-                return new Response<ChangeUserPasswordDTO>(null, 404, "Error", GetAllErrors(validationResult));
-            }
-
-            var checkPasswordResult = await _userManager.CheckPasswordAsync(user, dto.OldPassword);
-            if (!checkPasswordResult)
-            {
-                AddError(validationResult, "Your old password is wrong");
-                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
-            }
-
-            var result = await _userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
-            if (!result.Succeeded)
-            {
-                AddError(validationResult, "You can not change your password");
-                return new Response<ChangeUserPasswordDTO>(null, 400, "Error", GetAllErrors(validationResult));
-            }
-
-            return new Response<ChangeUserPasswordDTO>(null, 204);
-        }
-
-        public async Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id)
-        {
-            var deleteEvent = new DeleteCustomerIntegrationEvent(id);
-
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user is null) return new Response<DeleteCustomerIntegrationEvent>(null, 404, "User not found");
-
-            var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
-
-            if (result.ValidationResult.IsValid)
-            {
-                await _userManager.DeleteAsync(user);
-                return new Response<DeleteCustomerIntegrationEvent>(null, 204);
-            }
-
-            return new Response<DeleteCustomerIntegrationEvent>(null, 400, "You can not delete this user now");
-        }
-
         public async Task<Response<LoginResponseDTO>> LoginAsync(LoginUserDTO dto)
         {
             var validationResult = ValidateEntity(new LoginUserValidation(), dto);
 
             if (!validationResult.IsValid)
             {
-                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
+                return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
             }
 
             var user = LoginUserDTO.MapToIdentity(dto);
@@ -88,25 +39,24 @@ namespace IdentityService.API.Services
             var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, true);
 
             if (result.Succeeded)
-                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, "Success!");
+                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 200, ErrorsMessage.SUCCESS.GetDescription());
 
             if (result.IsLockedOut)
             {
-                AddError(validationResult, "Your account is locked");
-                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
+                AddError(validationResult, ErrorsMessage.LOCKED_ACCOUNT.GetDescription());
+                return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
             }
 
-            AddError(validationResult, "Your credentials are wrong");
-            return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
+            AddError(validationResult, ErrorsMessage.WRONG_CREDENTIALS.GetDescription());
+            return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
-
         public async Task<Response<LoginResponseDTO>> RegisterAsync(RegisterUserDTO dto)
         {
             var validationResult = ValidateEntity(new RegisterUserValidation(), dto);
 
             if (!validationResult.IsValid)
             {
-                return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
+                return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
             }
 
             var user = RegisterUserDTO.MapToIdentity(dto);
@@ -120,14 +70,66 @@ namespace IdentityService.API.Services
                 if (!customerResult.ValidationResult.IsValid)
                 {
                     await _userManager.DeleteAsync(user);
-                    return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrors(validationResult));
+                    return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
                 }
 
-                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, "Success");
+                return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, ErrorsMessage.SUCCESS.GetDescription());
             }
 
-            return new Response<LoginResponseDTO>(null, 400, "Error", GetAllErrorsIdentity(result));
+            return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrorsIdentity(result));
         }
+
+        public async Task<Response<ChangeUserPasswordDTO>> ChangePasswordAsync(ChangeUserPasswordDTO dto)
+        {
+            var validationResult = ValidateEntity(new ChangeUserPasswordValidation(), dto);
+
+            if (!validationResult.IsValid)
+            {
+                return new Response<ChangeUserPasswordDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            }
+
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user is null)
+            {
+                AddError(validationResult, ErrorsMessage.USER_NOT_FOUND.GetDescription());
+                return new Response<ChangeUserPasswordDTO>(null, 404, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            }
+
+            var checkPasswordResult = await _userManager.CheckPasswordAsync(user, dto.OldPassword);
+            if (!checkPasswordResult)
+            {
+                AddError(validationResult, ErrorsMessage.WRONG_CREDENTIALS.GetDescription());
+                return new Response<ChangeUserPasswordDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
+            if (!result.Succeeded)
+            {
+                AddError(validationResult, ErrorsMessage.CANT_CHANGE_PASSWORD.GetDescription());
+                return new Response<ChangeUserPasswordDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            }
+
+            return new Response<ChangeUserPasswordDTO>(null, 204, ErrorsMessage.SUCCESS.GetDescription());
+        }
+
+        public async Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id)
+        {
+            var deleteEvent = new DeleteCustomerIntegrationEvent(id);
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user is null) return new Response<DeleteCustomerIntegrationEvent>(null, 404, ErrorsMessage.USER_NOT_FOUND.GetDescription());
+
+            var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
+
+            if (result.ValidationResult.IsValid)
+            {
+                await _userManager.DeleteAsync(user);
+                return new Response<DeleteCustomerIntegrationEvent>(null, 204, ErrorsMessage.SUCCESS.GetDescription());
+            }
+
+            return new Response<DeleteCustomerIntegrationEvent>(null, 400, ErrorsMessage.CANT_DELETE_USER.GetDescription());
+        }
+
 
         #region Helpers
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
@@ -147,13 +149,13 @@ namespace IdentityService.API.Services
             }
         }
 
-        private ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
+        private static ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
         : AbstractValidator<TE> where TE : class => validation.Validate(entity);
-        private void AddError(ValidationResult validationResult, string message) =>
+        private static void AddError(ValidationResult validationResult, string message) =>
            validationResult.Errors.Add(new ValidationFailure(string.Empty, message));
-        private string[] GetAllErrors(ValidationResult validationResult) =>
+        private static string[] GetAllErrors(ValidationResult validationResult) =>
             validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
-        private string[] GetAllErrorsIdentity(IdentityResult identityResult) =>
+        private static string[] GetAllErrorsIdentity(IdentityResult identityResult) =>
              identityResult.Errors.Select(e => e.Description).ToArray();
         #endregion
     }

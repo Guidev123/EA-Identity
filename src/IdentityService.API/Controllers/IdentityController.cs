@@ -1,4 +1,5 @@
 ﻿using EA.CommonLib.Controllers;
+using EA.CommonLib.Responses;
 using IdentityService.API.DTOs;
 using IdentityService.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,8 @@ public class IdentityController(IAuthenticationService authenticationService) : 
 {
     private readonly IAuthenticationService _authenticationService = authenticationService;
 
+    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Response<LoginResponseDTO>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<LoginResponseDTO>))]
     [HttpPost]
     public async Task<IResult> RegisterAsync(RegisterUserDTO registerUser)
     {
@@ -20,6 +23,8 @@ public class IdentityController(IAuthenticationService authenticationService) : 
         return CustomResponse(result);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<LoginResponseDTO>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<LoginResponseDTO>))]
     [HttpPost("login")]
     public async Task<IResult> LoginAsync(LoginUserDTO loginUser)
     {
@@ -28,6 +33,9 @@ public class IdentityController(IAuthenticationService authenticationService) : 
         return CustomResponse(result);
     }
 
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
     [Authorize]
     [HttpPatch("change-password")]
     public async Task<IResult> ChangePasswordAsync(ChangeUserPasswordDTO changeUserPassword)
@@ -37,6 +45,10 @@ public class IdentityController(IAuthenticationService authenticationService) : 
         return CustomResponse(result);
     }
 
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
+    [Authorize]
     [HttpDelete("{id:guid}")]
     public async Task<IResult> DeleteAsync(Guid id)
     {
