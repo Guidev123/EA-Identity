@@ -70,7 +70,7 @@ namespace IdentityService.API.Services
                 if (!customerResult.ValidationResult.IsValid)
                 {
                     await _userManager.DeleteAsync(user);
-                    return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+                    return new Response<LoginResponseDTO>(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(customerResult.ValidationResult));
                 }
 
                 return new Response<LoginResponseDTO>(await _jwt.JwtGenerator(user), 201, ErrorsMessage.SUCCESS.GetDescription());
