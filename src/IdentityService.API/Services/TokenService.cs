@@ -1,6 +1,6 @@
 ﻿using IdentityService.API.DTOs;
 using IdentityService.API.Extensions;
-using IdentityService.API.Interfaces;
+using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,8 +10,8 @@ using System.Text;
 
 namespace IdentityService.API.Services
 {
-    public class SecurityService(IOptions<JsonWebTokenData> appSettings,
-                          UserManager<IdentityUser> userManager) : ISecurityService
+    public class TokenService(IOptions<JsonWebTokenData> appSettings,
+                          UserManager<IdentityUser> userManager) : ITokenService
     {
         private readonly UserManager<IdentityUser> _userManager = userManager;
         private readonly JsonWebTokenData _appSettings = appSettings.Value;

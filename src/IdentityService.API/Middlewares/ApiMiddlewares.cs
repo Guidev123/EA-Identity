@@ -1,7 +1,7 @@
 ﻿using EA.CommonLib.MessageBus;
 using IdentityService.API.Data;
-using IdentityService.API.Interfaces;
 using IdentityService.API.Services;
+using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +37,7 @@ namespace IdentityService.API.Middlewares
         public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
-            builder.Services.AddTransient<ISecurityService, SecurityService>();
+            builder.Services.AddTransient<ITokenService, TokenService>();
         }
 
         public static void AddIdentityMiddleware(this WebApplicationBuilder builder)

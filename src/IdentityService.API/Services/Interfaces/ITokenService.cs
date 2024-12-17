@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
-namespace IdentityService.API.Interfaces
+namespace IdentityService.API.Services.Interfaces
 {
-    public interface ISecurityService
+    public interface ITokenService
     {
         Task<LoginResponseDTO> JwtGenerator(IdentityUser email);
         Task<ClaimsIdentity> GetUserClaims(ICollection<Claim> claims, IdentityUser user);
