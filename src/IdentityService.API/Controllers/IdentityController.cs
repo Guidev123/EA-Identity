@@ -1,9 +1,8 @@
-﻿using EA.CommonLib.Controllers;
-using EA.CommonLib.Responses;
-using IdentityService.API.DTOs;
+﻿using IdentityService.API.DTOs;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedLib.Domain.Responses;
 
 namespace IdentityService.API.Controllers;
 

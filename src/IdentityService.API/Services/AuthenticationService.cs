@@ -1,16 +1,16 @@
-﻿using EA.CommonLib.MessageBus;
-using EA.CommonLib.MessageBus.Integration.RegisteredCustomer;
-using EA.CommonLib.MessageBus.Integration;
-using EA.CommonLib.Responses;
-using IdentityService.API.DTOs;
-using Microsoft.AspNetCore.Identity;
-using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Results;
+using IdentityService.API.DTOs;
 using IdentityService.API.DTOs.Validations;
 using IdentityService.API.Extensions;
-using EA.CommonLib.Helpers;
+using IdentityService.API.Helpers;
 using IdentityService.API.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using SharedLib.Domain.Messages.Integration;
+using SharedLib.Domain.Messages.Integration.DeletedUser;
+using SharedLib.Domain.Messages.Integration.RegisteredUser;
+using SharedLib.Domain.Responses;
+using SharedLib.MessageBus;
 
 namespace IdentityService.API.Services
 {
@@ -109,14 +109,14 @@ namespace IdentityService.API.Services
             return new(null, 204, ErrorsMessage.SUCCESS.GetDescription());
         }
 
-        public async Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id)
+        public async Task<Response<DeletedUserIntegrationEvent>> DeleteAsync(Guid id)
         {
-            var deleteEvent = new DeleteCustomerIntegrationEvent(id);
+            var deleteEvent = new DeletedUserIntegrationEvent(id);
 
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user is null) return new(null, 404, ErrorsMessage.USER_NOT_FOUND.GetDescription());
 
-            var result = await _messageBus.RequestAsync<DeleteCustomerIntegrationEvent, ResponseMessage>(deleteEvent);
+            var result = await _messageBus.RequestAsync<DeletedUserIntegrationEvent, ResponseMessage>(deleteEvent);
 
             if (result.ValidationResult.IsValid)
             {

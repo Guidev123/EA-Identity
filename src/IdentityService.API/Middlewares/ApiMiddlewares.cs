@@ -1,9 +1,9 @@
-﻿using EA.CommonLib.MessageBus;
-using IdentityService.API.Data;
+﻿using IdentityService.API.Data;
 using IdentityService.API.Services;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SharedLib.MessageBus;
 
 namespace IdentityService.API.Middlewares
 {
@@ -30,10 +30,8 @@ namespace IdentityService.API.Middlewares
             builder.Services.AddJwtConfiguration(builder.Configuration);
             builder.Services.AddSwaggerConfig();
         }
-        public static void AddMessageBusConfiguration(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"));
-        }
+        public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
+            builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
         public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();

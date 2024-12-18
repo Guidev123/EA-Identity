@@ -1,6 +1,6 @@
-﻿using EA.CommonLib.MessageBus.Integration.DeleteCustomer;
-using EA.CommonLib.Responses;
-using IdentityService.API.DTOs;
+﻿using IdentityService.API.DTOs;
+using SharedLib.Domain.Messages.Integration.DeletedUser;
+using SharedLib.Domain.Responses;
 
 namespace IdentityService.API.Services.Interfaces
 {
@@ -9,6 +9,6 @@ namespace IdentityService.API.Services.Interfaces
         Task<Response<LoginResponseDTO>> RegisterAsync(RegisterUserDTO dto);
         Task<Response<LoginResponseDTO>> LoginAsync(LoginUserDTO dto);
         Task<Response<ChangeUserPasswordDTO>> ChangePasswordAsync(ChangeUserPasswordDTO dto);
-        Task<Response<DeleteCustomerIntegrationEvent>> DeleteAsync(Guid id);
+        Task<Response<DeletedUserIntegrationEvent>> DeleteAsync(Guid id);
     }
 }
