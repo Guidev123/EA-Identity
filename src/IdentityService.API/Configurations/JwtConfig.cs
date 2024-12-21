@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace IdentityService.API.Middlewares
+namespace IdentityService.API.Configurations
 {
-    public static class JwtMiddleware
+    public static class JwtConfig
     {
         public static void AddJwtConfiguration(this IServiceCollection services,
             IConfiguration configuration)
@@ -18,11 +18,11 @@ namespace IdentityService.API.Middlewares
 
             services.AddAuthentication(x =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; 
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; 
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = true; 
+                x.RequireHttpsMetadata = true;
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {

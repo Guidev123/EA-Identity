@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedLib.MessageBus;
 
-namespace IdentityService.API.Middlewares
+namespace IdentityService.API.Configurations
 {
-    public static class ApiMiddlewares
+    public static class ApiConfig
     {
-        public static void AddDbContextMiddleware(this WebApplicationBuilder builder)
+        public static void AddDbContextConfig(this WebApplicationBuilder builder)
         {
             builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
                     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         }
 
-        public static void AddEnviromentMiddleware(this WebApplicationBuilder builder)
+        public static void AddEnviromentConfig(this WebApplicationBuilder builder)
         {
 
             builder.Configuration
@@ -32,13 +32,13 @@ namespace IdentityService.API.Middlewares
         }
         public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
             builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
-        public static void AddDependenciesMiddleware(this WebApplicationBuilder builder)
+        public static void AddDependencies(this WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
             builder.Services.AddTransient<ITokenService, TokenService>();
         }
 
-        public static void AddIdentityMiddleware(this WebApplicationBuilder builder)
+        public static void AddIdentityConfig(this WebApplicationBuilder builder)
         {
             builder.Services.AddDefaultIdentity<IdentityUser>()
                     .AddRoles<IdentityRole>()

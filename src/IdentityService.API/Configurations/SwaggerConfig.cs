@@ -1,8 +1,8 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace IdentityService.API.Middlewares
+namespace IdentityService.API.Configurations
 {
-    public static class SwaggerMiddleware
+    public static class SwaggerConfig
     {
         public static void AddSwaggerConfig(this IServiceCollection services)
         {

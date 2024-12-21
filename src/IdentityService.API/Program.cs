@@ -1,10 +1,10 @@
-using IdentityService.API.Middlewares;
+using IdentityService.API.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.AddEnviromentMiddleware();
-builder.AddDbContextMiddleware();
-builder.AddDependenciesMiddleware();
-builder.AddIdentityMiddleware();
+builder.AddEnviromentConfig();
+builder.AddDbContextConfig();
+builder.AddDependencies();
+builder.AddIdentityConfig();
 builder.AddMessageBusConfiguration();
 
 var app = builder.Build();
