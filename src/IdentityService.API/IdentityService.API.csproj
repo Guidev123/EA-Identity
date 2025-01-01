@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CustomerServices\src\EA.IntegrationEvents\EA.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\..\EA-IntegrationEvents\EA.IntegrationEvents\EA.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\..\SharedLib\src\SharedLib.Domain\SharedLib.Domain.csproj" />
     <ProjectReference Include="..\..\..\SharedLib\src\SharedLib.MessageBus\SharedLib.MessageBus.csproj" />
   </ItemGroup>

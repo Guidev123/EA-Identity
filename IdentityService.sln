@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLib.Domain", "..\Shar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLib.MessageBus", "..\SharedLib\src\SharedLib.MessageBus\SharedLib.MessageBus.csproj", "{278F8340-C2E6-476A-B6CC-7D76F5B3B73D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EA.IntegrationEvents", "..\CustomerServices\src\EA.IntegrationEvents\EA.IntegrationEvents.csproj", "{5B28DEED-73DB-45C2-B148-785FA7C66412}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EA.IntegrationEvents", "..\EA-IntegrationEvents\EA.IntegrationEvents\EA.IntegrationEvents.csproj", "{3FCDC8AA-C74D-4D2A-A577-B805485AEC31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{278F8340-C2E6-476A-B6CC-7D76F5B3B73D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{278F8340-C2E6-476A-B6CC-7D76F5B3B73D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{278F8340-C2E6-476A-B6CC-7D76F5B3B73D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B28DEED-73DB-45C2-B148-785FA7C66412}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B28DEED-73DB-45C2-B148-785FA7C66412}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B28DEED-73DB-45C2-B148-785FA7C66412}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B28DEED-73DB-45C2-B148-785FA7C66412}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FCDC8AA-C74D-4D2A-A577-B805485AEC31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FCDC8AA-C74D-4D2A-A577-B805485AEC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FCDC8AA-C74D-4D2A-A577-B805485AEC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FCDC8AA-C74D-4D2A-A577-B805485AEC31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,7 +49,7 @@ Global
 		{29F84EE8-C122-48E6-93ED-397E3CE72561} = {D8D13A25-FF5D-4F7C-AA1F-31BD68FFC4AE}
 		{7794A73A-F7D6-4B3F-985F-1B64AA7FB790} = {29F84EE8-C122-48E6-93ED-397E3CE72561}
 		{278F8340-C2E6-476A-B6CC-7D76F5B3B73D} = {29F84EE8-C122-48E6-93ED-397E3CE72561}
-		{5B28DEED-73DB-45C2-B148-785FA7C66412} = {29F84EE8-C122-48E6-93ED-397E3CE72561}
+		{3FCDC8AA-C74D-4D2A-A577-B805485AEC31} = {29F84EE8-C122-48E6-93ED-397E3CE72561}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31E85314-1E0A-4E97-8E30-7E6880695234}
