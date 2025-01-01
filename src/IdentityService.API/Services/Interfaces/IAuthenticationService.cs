@@ -1,5 +1,5 @@
-﻿using IdentityService.API.DTOs;
-using SharedLib.Domain.Messages.Integration.DeletedUser;
+﻿using EA.IntegrationEvents.Integration.DeletedUser;
+using IdentityService.API.DTOs;
 using SharedLib.Domain.Responses;
 
 namespace IdentityService.API.Services.Interfaces

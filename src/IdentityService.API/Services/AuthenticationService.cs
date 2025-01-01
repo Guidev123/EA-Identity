@@ -1,4 +1,7 @@
-﻿using FluentValidation;
+﻿using EA.IntegrationEvents.Integration;
+using EA.IntegrationEvents.Integration.DeletedUser;
+using EA.IntegrationEvents.Integration.RegisteredUser;
+using FluentValidation;
 using FluentValidation.Results;
 using IdentityService.API.DTOs;
 using IdentityService.API.DTOs.Validations;
@@ -6,9 +9,6 @@ using IdentityService.API.Extensions;
 using IdentityService.API.Helpers;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using SharedLib.Domain.Messages.Integration;
-using SharedLib.Domain.Messages.Integration.DeletedUser;
-using SharedLib.Domain.Messages.Integration.RegisteredUser;
 using SharedLib.Domain.Responses;
 using SharedLib.MessageBus;
 
