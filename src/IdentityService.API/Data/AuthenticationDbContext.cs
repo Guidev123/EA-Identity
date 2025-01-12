@@ -5,15 +5,14 @@ using SharedLib.Tokens.Core.Models;
 using SharedLib.Tokens.EntityFramework;
 using System.Reflection;
 
-namespace IdentityService.API.Data
+namespace IdentityService.API.Data;
+
+public class AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
+           : IdentityDbContext(options), ISecurityKeyContext
 {
-    public class AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
-               : IdentityDbContext(options), ISecurityKeyContext
+    public DbSet<KeyMaterial> SecurityKeys { get; set; }
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        public DbSet<KeyMaterial> SecurityKeys { get; set; }
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

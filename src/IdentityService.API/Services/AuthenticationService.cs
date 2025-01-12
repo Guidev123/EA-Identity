@@ -6,7 +6,6 @@ using FluentValidation.Results;
 using IdentityService.API.DTOs;
 using IdentityService.API.DTOs.Validations;
 using IdentityService.API.Extensions;
-using IdentityService.API.Helpers;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using SharedLib.Domain.Responses;
@@ -127,12 +126,10 @@ namespace IdentityService.API.Services
             return new(null, 400, ErrorsMessage.CANT_DELETE_USER.GetDescription());
         }
 
-
-        #region Helpers
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
         {
             var user = await _userManager.FindByEmailAsync(userDTO.Email);
-            var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
+            var registeredUser = new RegisteredUserIntegrationEvent(Guid.Parse(user!.Id), userDTO.Name, userDTO.Email, userDTO.Cpf);
 
             try
             {
@@ -146,6 +143,7 @@ namespace IdentityService.API.Services
             }
         }
 
+        #region Helpers
         private static ValidationResult ValidateEntity<TV, TE>(TV validation, TE entity) where TV
         : AbstractValidator<TE> where TE : class => validation.Validate(entity);
         private static void AddError(ValidationResult validationResult, string message) =>

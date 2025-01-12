@@ -2,16 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace IdentityService.API.Data.Mappings
+namespace IdentityService.API.Data.Mappings;
+
+public class IdentityUserClaimMapping : IEntityTypeConfiguration<IdentityUserClaim<string>>
 {
-    public class IdentityUserClaimMapping : IEntityTypeConfiguration<IdentityUserClaim<string>>
+    public void Configure(EntityTypeBuilder<IdentityUserClaim<string>> builder)
     {
-        public void Configure(EntityTypeBuilder<IdentityUserClaim<string>> builder)
-        {
-            builder.ToTable("Claim");
-            builder.HasKey(uc => uc.Id);
-            builder.Property(u => u.ClaimType).HasColumnType("VARCHAR").HasMaxLength(160);
-            builder.Property(u => u.ClaimValue).HasColumnType("VARCHAR").HasMaxLength(160);
-        }
+        builder.ToTable("Claim");
+        builder.HasKey(uc => uc.Id);
+        builder.Property(u => u.ClaimType).HasColumnType("VARCHAR").HasMaxLength(160);
+        builder.Property(u => u.ClaimValue).HasColumnType("VARCHAR").HasMaxLength(160);
     }
 }

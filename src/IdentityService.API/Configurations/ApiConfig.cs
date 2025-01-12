@@ -9,71 +9,69 @@ using SharedLib.Tokens.Core;
 using SharedLib.Tokens.Core.Jwa;
 using SharedLib.Tokens.EntityFramework;
 
-namespace IdentityService.API.Configurations
+namespace IdentityService.API.Configurations;
+
+public static class ApiConfig
 {
-    public static class ApiConfig
+    public static void AddDbContextConfig(this WebApplicationBuilder builder)
     {
-        public static void AddDbContextConfig(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
-                    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-        }
-
-        public static void AddEnviromentConfig(this WebApplicationBuilder builder)
-        {
-
-            builder.Configuration
-                .SetBasePath(builder.Environment.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true)
-                .AddEnvironmentVariables();
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddJwtConfiguration(builder.Configuration);
-            builder.Services.AddSwaggerConfig();
-        }
-        public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
-            builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
-        public static void AddDependencies(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
-            builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
-        }
-
-        public static void AddIdentityConfig(this WebApplicationBuilder builder)
-        {
-            builder.Services.AddDefaultIdentity<IdentityUser>()
-                    .AddRoles<IdentityRole>()
-                    .AddEntityFrameworkStores<AuthenticationDbContext>()
-                    .AddDefaultTokenProviders();
-
-            builder.Services.AddJwksManager(x => x.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.EcdsaSha256))
-                .PersistKeysToDatabaseStore<AuthenticationDbContext>()
-                .UseJwtValidation();
-        }
-
-        public static void UseSecurity(this IApplicationBuilder app)
-        {
-            app.UseSwaggerConfig();
-
-            app.UseHttpsRedirection();
-
-            app.UseJwksDiscovery();
-
-            app.UseRouting();
-
-            app.UseCors("Total");
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+        builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     }
 
+    public static void AddEnviromentConfig(this WebApplicationBuilder builder)
+    {
+
+        builder.Configuration
+            .SetBasePath(builder.Environment.ContentRootPath)
+            .AddJsonFile("appsettings.json", true, true)
+            .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, true)
+            .AddEnvironmentVariables();
+
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        builder.Services.AddJwtConfiguration(builder.Configuration);
+        builder.Services.AddSwaggerConfig();
+    }
+    public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
+        builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
+    public static void AddDependencies(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
+        builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
+    }
+
+    public static void AddIdentityConfig(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<AuthenticationDbContext>()
+                .AddDefaultTokenProviders();
+
+        builder.Services.AddJwksManager(x => x.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.EcdsaSha256))
+            .PersistKeysToDatabaseStore<AuthenticationDbContext>()
+            .UseJwtValidation();
+    }
+
+    public static void UseSecurity(this IApplicationBuilder app)
+    {
+        app.UseSwaggerConfig();
+
+        app.UseHttpsRedirection();
+
+        app.UseJwksDiscovery();
+
+        app.UseRouting();
+
+        app.UseCors("Total");
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
 }
