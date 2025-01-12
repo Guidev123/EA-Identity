@@ -262,8 +262,8 @@ namespace IdentityService.API.Data.Migrations
 
                     b.Property<string>("Parameters")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("VARCHAR");
+                        .HasMaxLength(3000)
+                        .HasColumnType("NVARCHAR");
 
                     b.Property<string>("RevokedReason")
                         .HasMaxLength(160)

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityService.API.Data.Migrations
 {
     [DbContext(typeof(AuthenticationDbContext))]
-    [Migration("20250112174349_Initial")]
+    [Migration("20250112202819_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -265,8 +265,8 @@ namespace IdentityService.API.Data.Migrations
 
                     b.Property<string>("Parameters")
                         .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("VARCHAR");
+                        .HasMaxLength(3000)
+                        .HasColumnType("NVARCHAR");
 
                     b.Property<string>("RevokedReason")
                         .HasMaxLength(160)

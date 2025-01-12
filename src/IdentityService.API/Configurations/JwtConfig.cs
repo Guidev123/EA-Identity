@@ -29,9 +29,7 @@ public static class JwtConfig
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidAudience = appSettings.ValidAt,
-                ValidIssuer = appSettings.Issuer
+                ValidateAudience = true
             };
         });
     }

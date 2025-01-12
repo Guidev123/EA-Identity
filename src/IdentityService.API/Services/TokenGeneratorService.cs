@@ -4,29 +4,35 @@ using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SharedLib.Tokens.Core.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace IdentityService.API.Services
 {
     public class TokenGeneratorService(IOptions<JsonWebTokenData> appSettings,
-                          UserManager<IdentityUser> userManager) : ITokenGeneratorService
+                          UserManager<IdentityUser> userManager,
+                          IHttpContextAccessor accessor,
+                          IJwtService jwksService) : ITokenGeneratorService
     {
         private readonly UserManager<IdentityUser> _userManager = userManager;
         private readonly JsonWebTokenData _appSettings = appSettings.Value;
+        private readonly IHttpContextAccessor _accessor = accessor;
+        private readonly IJwtService _jwksService = jwksService;
 
-        public string EncodingToken(ClaimsIdentity identityClaims)
+        public async Task<string> EncodingToken(ClaimsIdentity identityClaims)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+
+            string currentIssuer = $"{_accessor.HttpContext?.Request.Scheme}://{_accessor.HttpContext?.Request.Host}";
+
+            var key = await _jwksService.GetCurrentSigningCredentials();
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = _appSettings.Issuer,
-                Audience = _appSettings.ValidAt,
+                Issuer = currentIssuer,
                 Subject = identityClaims,
                 Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiresIn),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = key
             });
 
             return tokenHandler.WriteToken(token);
@@ -37,7 +43,7 @@ namespace IdentityService.API.Services
             var claims = await _userManager.GetClaimsAsync(user);
 
             var identityClaims = await GetUserClaims(claims, user);
-            var encodedToken = EncodingToken(identityClaims);
+            var encodedToken = await EncodingToken(identityClaims);
 
             return GetTokenResponse(encodedToken, user, claims);
         }

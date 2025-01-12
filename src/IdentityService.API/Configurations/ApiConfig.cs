@@ -38,6 +38,7 @@ public static class ApiConfig
         builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
     public static void AddDependencies(this WebApplicationBuilder builder)
     {
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
         builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
     }
@@ -59,8 +60,6 @@ public static class ApiConfig
         app.UseSwaggerConfig();
 
         app.UseHttpsRedirection();
-
-        app.UseJwksDiscovery();
 
         app.UseRouting();
 
