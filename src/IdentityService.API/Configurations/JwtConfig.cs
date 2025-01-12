@@ -1,7 +1,6 @@
 ﻿using IdentityService.API.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using SharedLib.Tokens.Extensions;
 
 namespace IdentityService.API.Configurations;
 
@@ -10,11 +9,10 @@ public static class JwtConfig
     public static void AddJwtConfiguration(this IServiceCollection services,
         IConfiguration configuration)
     {
-        var appSettingsSection = configuration.GetSection(nameof(JsonWebTokenData));
-        services.Configure<JsonWebTokenData>(appSettingsSection);
+        var appSettingsSection = configuration.GetSection(nameof(JwksSettings));
+        services.Configure<JwksSettings>(appSettingsSection);
 
-        var appSettings = appSettingsSection.Get<JsonWebTokenData>() ?? new();
-        var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+        var appSettings = appSettingsSection.Get<JwksSettings>() ?? new();
 
         services.AddAuthentication(x =>
         {
@@ -24,13 +22,10 @@ public static class JwtConfig
         {
             x.RequireHttpsMetadata = true;
             x.SaveToken = true;
-            x.TokenValidationParameters = new TokenValidationParameters
+            x.SetJwksOptions(new JwkOptions
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidateAudience = true
-            };
+                JwksUri = appSettings.JwksEndpoint,
+            });
         });
     }
 }

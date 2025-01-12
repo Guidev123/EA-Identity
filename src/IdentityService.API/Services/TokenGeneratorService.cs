@@ -1,8 +1,6 @@
 ﻿using IdentityService.API.DTOs;
-using IdentityService.API.Extensions;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SharedLib.Tokens.Core.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,13 +8,11 @@ using System.Security.Claims;
 
 namespace IdentityService.API.Services
 {
-    public class TokenGeneratorService(IOptions<JsonWebTokenData> appSettings,
-                          UserManager<IdentityUser> userManager,
-                          IHttpContextAccessor accessor,
-                          IJwtService jwksService) : ITokenGeneratorService
+    public class TokenGeneratorService(UserManager<IdentityUser> userManager,
+                                       IHttpContextAccessor accessor,
+                                       IJwtService jwksService) : ITokenGeneratorService
     {
         private readonly UserManager<IdentityUser> _userManager = userManager;
-        private readonly JsonWebTokenData _appSettings = appSettings.Value;
         private readonly IHttpContextAccessor _accessor = accessor;
         private readonly IJwtService _jwksService = jwksService;
 
@@ -31,7 +27,7 @@ namespace IdentityService.API.Services
             {
                 Issuer = currentIssuer,
                 Subject = identityClaims,
-                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiresIn),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = key
             });
 
@@ -73,7 +69,7 @@ namespace IdentityService.API.Services
             return new LoginResponseDTO
             {
                 AccessToken = encodedToken,
-                ExpiresIn = TimeSpan.FromHours(_appSettings.ExpiresIn).TotalSeconds,
+                ExpiresIn = TimeSpan.FromHours(1).TotalSeconds,
                 UserToken = new UserTokenDTO
                 {
                     Id = user.Id,
