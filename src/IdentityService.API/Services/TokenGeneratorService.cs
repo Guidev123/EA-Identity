@@ -10,8 +10,8 @@ using System.Text;
 
 namespace IdentityService.API.Services
 {
-    public class TokenService(IOptions<JsonWebTokenData> appSettings,
-                          UserManager<IdentityUser> userManager) : ITokenService
+    public class TokenGeneratorService(IOptions<JsonWebTokenData> appSettings,
+                          UserManager<IdentityUser> userManager) : ITokenGeneratorService
     {
         private readonly UserManager<IdentityUser> _userManager = userManager;
         private readonly JsonWebTokenData _appSettings = appSettings.Value;

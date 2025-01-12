@@ -4,7 +4,7 @@ using System.Security.Claims;
 
 namespace IdentityService.API.Services.Interfaces
 {
-    public interface ITokenService
+    public interface ITokenGeneratorService
     {
         Task<LoginResponseDTO> JwtGenerator(IdentityUser email);
         Task<ClaimsIdentity> GetUserClaims(ICollection<Claim> claims, IdentityUser user);

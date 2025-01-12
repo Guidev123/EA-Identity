@@ -4,6 +4,10 @@ using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedLib.MessageBus;
+using SharedLib.Tokens.AspNet;
+using SharedLib.Tokens.Core;
+using SharedLib.Tokens.Core.Jwa;
+using SharedLib.Tokens.EntityFramework;
 
 namespace IdentityService.API.Configurations
 {
@@ -35,7 +39,7 @@ namespace IdentityService.API.Configurations
         public static void AddDependencies(this WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
-            builder.Services.AddTransient<ITokenService, TokenService>();
+            builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
         }
 
         public static void AddIdentityConfig(this WebApplicationBuilder builder)
@@ -44,6 +48,10 @@ namespace IdentityService.API.Configurations
                     .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<AuthenticationDbContext>()
                     .AddDefaultTokenProviders();
+
+            builder.Services.AddJwksManager(x => x.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.EcdsaSha256))
+                .PersistKeysToDatabaseStore<AuthenticationDbContext>()
+                .UseJwtValidation();
         }
 
         public static void UseSecurity(this IApplicationBuilder app)
@@ -51,6 +59,8 @@ namespace IdentityService.API.Configurations
             app.UseSwaggerConfig();
 
             app.UseHttpsRedirection();
+
+            app.UseJwksDiscovery();
 
             app.UseRouting();
 

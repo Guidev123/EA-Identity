@@ -16,13 +16,13 @@ namespace IdentityService.API.Services
 {
     public class AuthenticationService(SignInManager<IdentityUser> signInManager,
                                        UserManager<IdentityUser> userManager,
-                                       ITokenService jwt,
+                                       ITokenGeneratorService jwt,
                                        IMessageBus messageBus)
                                      : IAuthenticationService
     {
         private readonly SignInManager<IdentityUser> _signInManager = signInManager;
         private readonly UserManager<IdentityUser> _userManager = userManager;
-        private readonly ITokenService _jwt = jwt;
+        private readonly ITokenGeneratorService _jwt = jwt;
         private readonly IMessageBus _messageBus = messageBus;
 
         public async Task<Response<LoginResponseDTO>> LoginAsync(LoginUserDTO dto)
