@@ -34,9 +34,8 @@ namespace IdentityService.API.Services
             var user = LoginUserDTO.MapToIdentity(dto);
 
             var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, true);
-
             if (result.Succeeded)
-                return new(await _jwt.JwtGenerator(user), 200, ErrorsMessage.SUCCESS.GetDescription());
+                return new(await _jwt.JwtGenerator(user.Email!), 200, ErrorsMessage.SUCCESS.GetDescription());
 
             if (result.IsLockedOut)
             {
@@ -69,7 +68,7 @@ namespace IdentityService.API.Services
                     return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(customerResult.ValidationResult));
                 }
 
-                return new(await _jwt.JwtGenerator(user), 201, ErrorsMessage.SUCCESS.GetDescription());
+                return new(await _jwt.JwtGenerator(user.Email!), 201, ErrorsMessage.SUCCESS.GetDescription());
             }
 
             return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrorsIdentity(result));
@@ -126,6 +125,18 @@ namespace IdentityService.API.Services
             return new(null, 400, ErrorsMessage.CANT_DELETE_USER.GetDescription());
         }
 
+        public async Task<Response<LoginResponseDTO>> RefreshTokenAsync(string refreshToken)
+        {
+            if (string.IsNullOrEmpty(refreshToken))
+                return new(null, 400, ErrorsMessage.INVALID_REFRESH_TOKEN.GetDescription());
+
+            var token = await _jwt.GetRefreshToken(Guid.Parse(refreshToken));
+            if (token is null) return new(null, 400, ErrorsMessage.INVALID_REFRESH_TOKEN.GetDescription());
+
+            return new(await _jwt.JwtGenerator(token.UserIdentification), 200, ErrorsMessage.SUCCESS.GetDescription());
+        }
+
+
         private async Task<ResponseMessage> RegisterCustomer(RegisterUserDTO userDTO)
         {
             var user = await _userManager.FindByEmailAsync(userDTO.Email);
@@ -152,6 +163,7 @@ namespace IdentityService.API.Services
             validationResult.Errors.Select(e => e.ErrorMessage).ToArray();
         private static string[] GetAllErrorsIdentity(IdentityResult identityResult) =>
              identityResult.Errors.Select(e => e.Description).ToArray();
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using IdentityService.API.Data;
+using IdentityService.API.Extensions;
 using IdentityService.API.Services;
 using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -40,6 +41,8 @@ public static class ApiConfig
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
         builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
+        var appSettingsSection = builder.Configuration.GetSection(nameof(AppTokenSettings));
+        builder.Services.Configure<AppTokenSettings>(appSettingsSection);
     }
 
     public static void AddIdentityConfig(this WebApplicationBuilder builder)

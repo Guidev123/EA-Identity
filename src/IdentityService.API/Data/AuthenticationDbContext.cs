@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using IdentityService.API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SharedLib.Tokens.Core.Models;
@@ -11,6 +12,7 @@ public class AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> o
            : IdentityDbContext(options), ISecurityKeyContext
 {
     public DbSet<KeyMaterial> SecurityKeys { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

@@ -42,4 +42,8 @@ public class IdentityController(IAuthenticationService authenticationService) : 
     [HttpDelete("{id:guid}")]
     public async Task<IResult> DeleteAsync(Guid id) => 
         CustomResponse(await _authenticationService.DeleteAsync(id));
+
+    [HttpPost("refresh-token")]
+    public async Task<IResult> RefreshTokenAsync(string refreshToken) =>
+        CustomResponse(await _authenticationService.RefreshTokenAsync(refreshToken));
 }

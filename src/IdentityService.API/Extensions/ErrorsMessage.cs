@@ -17,6 +17,8 @@ namespace IdentityService.API.Extensions
         [Description("User not found")]
         USER_NOT_FOUND,
         [Description("You can not change your password")]
-        CANT_CHANGE_PASSWORD
+        CANT_CHANGE_PASSWORD,
+        [Description("Invalid Refresh Token")]
+        INVALID_REFRESH_TOKEN
     }
 }
