@@ -83,6 +83,15 @@
 
   <section>
 
+
+<section>
+  <h2>Architecture</h2>
+
+![image](https://github.com/user-attachments/assets/aa02c248-4d28-4c67-a848-e67c9367ea6f)
+
+  
+</section>
+
 <section>
     <h2>Endpoints</h2>
 
