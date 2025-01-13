@@ -8,24 +8,19 @@ public static class JwtConfig
 {
     public static void AddJwtConfiguration(this IServiceCollection services,
         IConfiguration configuration)
+    
     {
         var appSettingsSection = configuration.GetSection(nameof(JwksSettings));
         services.Configure<JwksSettings>(appSettingsSection);
 
         var appSettings = appSettingsSection.Get<JwksSettings>() ?? new();
-
         services.AddAuthentication(x =>
         {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(x =>
-        {
-            x.RequireHttpsMetadata = true;
-            x.SaveToken = true;
-            x.SetJwksOptions(new JwkOptions
+        }).AddJwtBearer(options =>
             {
-                JwksUri = appSettings.JwksEndpoint,
+                options.SetJwksOptions(new JwkOptions(appSettings.JwksEndpoint));
             });
-        });
     }
 }

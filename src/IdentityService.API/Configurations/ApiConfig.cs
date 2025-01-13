@@ -72,5 +72,6 @@ public static class ApiConfig
         {
             endpoints.MapControllers();
         });
+        app.UseJwksDiscovery();
     }
 }
