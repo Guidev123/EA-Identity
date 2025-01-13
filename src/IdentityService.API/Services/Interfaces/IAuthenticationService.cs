@@ -1,5 +1,4 @@
 ﻿using EA.IntegrationEvents.Integration.DeletedUser;
-using IdentityService.API.Data.Migrations;
 using IdentityService.API.DTOs;
 using SharedLib.Domain.Responses;
 

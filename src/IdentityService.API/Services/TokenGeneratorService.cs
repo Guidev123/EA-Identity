@@ -95,7 +95,9 @@ namespace IdentityService.API.Services
 
         public async Task<RefreshToken> GenerateRefreshToken(string email)
         {
-            var refreshToken = new RefreshToken(email, DateTime.Now.AddHours(_tokenSettings.RefreshTokenExpirationInHours));
+            var refreshToken = new RefreshToken(email, DateTime.Now);
+            refreshToken.SetExpirationDate(_tokenSettings.RefreshTokenExpirationInHours);
+
             _context.RefreshTokens.RemoveRange(_context.RefreshTokens.Where(rt => rt.UserIdentification == email));
             await _context.RefreshTokens.AddAsync(refreshToken);
             await _context.SaveChangesAsync();
