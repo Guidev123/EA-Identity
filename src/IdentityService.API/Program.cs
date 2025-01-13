@@ -8,6 +8,7 @@ builder.AddIdentityConfig();
 builder.AddMessageBusConfiguration();
 
 var app = builder.Build();
+app.UseCustomMiddlewares();
 app.UseSecurity();
 
 app.Run();
