@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 
-namespace IdentityService.API.DTOs.Validations
+namespace IdentityService.API.Application.UseCases.Register
 {
-    public class RegisterUserValidation : AbstractValidator<RegisterUserDTO>
+    public class RegisterUserValidation : AbstractValidator<RegisterUserCommand>
     {
         public RegisterUserValidation()
         {

@@ -10,9 +10,8 @@ public class RefreshToken
         ExpirationDate = expirationDate;
     }
 
-    public Guid Id { get; private set; }
-    public string UserIdentification { get; private set; }
-    public Guid Token { get; private set; }
-    public DateTime ExpirationDate { get; private set; }
-    public void SetExpirationDate(int expirationInHours) => ExpirationDate.AddHours(expirationInHours);
+    public Guid Id { get; set; }
+    public string UserIdentification { get; set; } = string.Empty;
+    public Guid Token { get; set; }
+    public DateTime ExpirationDate { get; set; }
 }

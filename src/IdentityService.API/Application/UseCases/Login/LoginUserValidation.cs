@@ -1,8 +1,9 @@
 ﻿using FluentValidation;
+using IdentityService.API.DTOs;
 
-namespace IdentityService.API.DTOs.Validations
+namespace IdentityService.API.Application.UseCases.Login
 {
-    public class LoginUserValidation : AbstractValidator<LoginUserDTO>
+    public class LoginUserValidation : AbstractValidator<LoginUserCommand>
     {
         public LoginUserValidation()
         {

@@ -2,7 +2,6 @@
 using IdentityService.API.Extensions;
 using IdentityService.API.Middlewares;
 using IdentityService.API.Services;
-using IdentityService.API.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedLib.MessageBus;
@@ -10,6 +9,7 @@ using SharedLib.Tokens.AspNet;
 using SharedLib.Tokens.Core;
 using SharedLib.Tokens.Core.Jwa;
 using SharedLib.Tokens.EntityFramework;
+using System.Reflection;
 
 namespace IdentityService.API.Configurations;
 
@@ -40,8 +40,8 @@ public static class ApiConfig
     public static void AddDependencies(this WebApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddTransient<IAuthenticationService, AuthenticationService>();
-        builder.Services.AddTransient<ITokenGeneratorService, TokenGeneratorService>();
+        builder.Services.AddTransient<ITokenService, TokenService>();
+        builder.Services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         builder.Services.AddTransient<GlobalExceptionMiddleware>();
         var appSettingsSection = builder.Configuration.GetSection(nameof(AppTokenSettings));
         builder.Services.Configure<AppTokenSettings>(appSettingsSection);

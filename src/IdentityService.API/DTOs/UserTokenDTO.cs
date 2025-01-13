@@ -1,9 +1,8 @@
-﻿namespace IdentityService.API.DTOs
+﻿namespace IdentityService.API.DTOs;
+
+public class UserTokenDTO
 {
-    public class UserTokenDTO
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public IEnumerable<ClaimDTO> Claims { get; set; } = [];
-    }
+    public string Id { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public IEnumerable<ClaimDTO> Claims { get; set; } = [];
 }
