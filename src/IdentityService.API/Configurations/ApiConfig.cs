@@ -13,15 +13,12 @@ namespace IdentityService.API.Configurations;
 
 public static class ApiConfig
 {
-    public static void AddDbContextConfig(this WebApplicationBuilder builder)
-    {
+    public static void AddDbContextConfig(this WebApplicationBuilder builder) =>
         builder.Services.AddDbContext<AuthenticationDbContext>(opt =>
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-    }
 
     public static void AddEnviromentConfig(this WebApplicationBuilder builder)
     {
-
         builder.Configuration
             .SetBasePath(builder.Environment.ContentRootPath)
             .AddJsonFile("appsettings.json", true, true)
@@ -34,8 +31,10 @@ public static class ApiConfig
         builder.Services.AddJwtConfiguration(builder.Configuration);
         builder.Services.AddSwaggerConfig();
     }
+
     public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
         builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
+
     public static void AddDependencies(this WebApplicationBuilder builder)
     {
         builder.Services.AddHttpContextAccessor();
@@ -72,6 +71,7 @@ public static class ApiConfig
         {
             endpoints.MapControllers();
         });
+
         app.UseJwksDiscovery();
     }
 }

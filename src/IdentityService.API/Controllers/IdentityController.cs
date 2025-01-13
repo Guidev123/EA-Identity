@@ -7,7 +7,7 @@ using SharedLib.Domain.Responses;
 namespace IdentityService.API.Controllers;
 
 [ApiController]
-[Route("api/v1/authentication")]
+[Route("api/v1/auth")]
 public class IdentityController(IAuthenticationService authenticationService) : MainController
 {
     private readonly IAuthenticationService _authenticationService = authenticationService;
