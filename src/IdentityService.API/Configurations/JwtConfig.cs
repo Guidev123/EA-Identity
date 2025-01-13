@@ -20,6 +20,8 @@ public static class JwtConfig
             x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
             {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
                 options.SetJwksOptions(new JwkOptions(appSettings.JwksEndpoint));
             });
     }
