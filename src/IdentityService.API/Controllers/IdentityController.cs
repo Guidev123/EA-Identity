@@ -48,6 +48,7 @@ public class IdentityController(IMediator mediator) : MainController
     public async Task<IResult> DeleteAsync(Guid id) =>
         CustomResponse(await _mediator.Send(new DeleteUserCommand(id)));
 
+
     [HttpPost("refresh-token")]
     public async Task<IResult> RefreshTokenAsync(string refreshToken) =>
         CustomResponse(await _mediator.Send(new RefreshTokenCommand(refreshToken)));

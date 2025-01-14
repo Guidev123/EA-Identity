@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using IdentityService.API.DTOs;
 
 namespace IdentityService.API.Application.UseCases.ChangePassword
 {
