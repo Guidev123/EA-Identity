@@ -11,6 +11,8 @@ using SharedLib.Tokens.Core;
 using SharedLib.Tokens.Core.Jwa;
 using SharedLib.Tokens.EntityFramework;
 using System.Reflection;
+using SendGrid.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace IdentityService.API.Configurations;
 
@@ -45,9 +47,15 @@ public static class ApiConfig
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         builder.Services.AddTransient<GlobalExceptionMiddleware>();
-        var appSettingsSection = builder.Configuration.GetSection(nameof(AppTokenSettings));
-        builder.Services.Configure<AppTokenSettings>(appSettingsSection);
+        builder.Services.AddSendGrid(x =>
+        {
+            x.ApiKey = builder.Configuration.GetValue<string>("EmailSettings:ApiKey");
+        });
+        var appTokenSettings = builder.Configuration.GetSection(nameof(AppTokenSettings));
+        builder.Services.Configure<AppTokenSettings>(appTokenSettings);
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
     }
+
 
     public static void AddIdentityConfig(this WebApplicationBuilder builder)
     {

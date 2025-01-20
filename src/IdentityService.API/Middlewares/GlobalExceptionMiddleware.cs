@@ -16,7 +16,6 @@ public class GlobalExceptionMiddleware : IMiddleware
         {
             ProblemDetails problemDetails = new()
             {
-                Status = (int)HttpStatusCode.InternalServerError,
                 Title = "An internal server error occurred while processing your request",
                 Detail = ex.Message
             };

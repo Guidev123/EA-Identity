@@ -14,5 +14,6 @@
         public string Subject { get; set; }
         public string Content { get; set; }
         public IFormFile? Attachments { get; set; }
+        public string ToName { get; internal set; }
     }
 }

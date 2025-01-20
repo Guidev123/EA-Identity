@@ -1,5 +1,6 @@
 ﻿using IdentityService.API.DTOs;
 using IdentityService.API.Extensions;
+using IdentityService.API.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -8,12 +9,14 @@ using SharedLib.Domain.Responses;
 
 namespace IdentityService.API.Application.UseCases.ForgotPassword;
 
-public class ForgotPasswordHandler(UserManager<IdentityUser> userManager)
+public class ForgotPasswordHandler(UserManager<IdentityUser> userManager,
+                                   IEmailService emailService)
                                  : CommandHandler,
                                    IRequestHandler<ForgotPasswordCommand,
                                    Response<ForgotPasswordCommand>>
 {
     private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly IEmailService _emailService = emailService;
     public async Task<Response<ForgotPasswordCommand>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
         var validationResult = ValidateEntity(new ForgotPasswordValidation(), request);
@@ -38,7 +41,7 @@ public class ForgotPasswordHandler(UserManager<IdentityUser> userManager)
 
         var message = new EmailMessageDTO(user.Email!, "Reset password token", callback);
 
-        // Send email with message
+        await _emailService.SendAsync(message);
 
         return new(null, 204, ResponseMessages.SUCCESS.GetDescription());
     }

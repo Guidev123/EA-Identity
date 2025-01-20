@@ -1,5 +1,8 @@
-﻿namespace IdentityService.API.Services;
+﻿using IdentityService.API.DTOs;
 
-public interface IEmailService
+namespace IdentityService.API.Services;
+
+public interface IEmailService 
 {
+    Task SendAsync(EmailMessageDTO email);
 }
