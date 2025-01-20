@@ -3,7 +3,13 @@ using SharedLib.Domain.Messages;
 
 namespace IdentityService.API.Application.UseCases.RefreshToken;
 
-public class RefreshTokenCommand(string refreshToken) : Command<LoginResponseDTO>
+public class RefreshTokenCommand : Command<LoginResponseDTO>
 {
-    public string RefreshToken { get; private set; } = refreshToken;
+    public string RefreshToken { get; private set; }
+
+    public RefreshTokenCommand(string refreshToken)
+    {
+        AggregateId = Guid.NewGuid();
+        RefreshToken = refreshToken;
+    }
 }

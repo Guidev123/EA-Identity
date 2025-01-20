@@ -3,13 +3,23 @@ using SharedLib.Domain.Messages;
 
 namespace IdentityService.API.Application.UseCases.Register;
 
-public class RegisterUserCommand(string Name, string Cpf,
-                                  string Email, string Password,
-                                  string ConfirmPassword) : Command<LoginResponseDTO>
+public class RegisterUserCommand : Command<LoginResponseDTO>
 {
-    public string Name { get; private set; } = Name;
-    public string Cpf { get; private set; } = Cpf;
-    public string Email { get; private set; } = Email;
-    public string Password { get; private set; } = Password;
-    public string ConfirmPassword { get; private set; } = ConfirmPassword;
+    public string Name { get; private set; }
+    public string Cpf { get; private set; }
+    public string Email { get; private set; }
+    public string Password { get; private set; }
+    public string ConfirmPassword { get; private set; }
+
+    public RegisterUserCommand(string name, string cpf,
+                                      string email, string password,
+                                      string confirmPassword)
+    {
+        AggregateId = Guid.NewGuid();
+        Name = name;
+        Cpf = cpf;
+        Email = email;
+        Password = password;
+        ConfirmPassword = confirmPassword;
+    }
 }

@@ -42,6 +42,7 @@ public static class ApiConfig
     {
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<ITokenService, TokenService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         builder.Services.AddTransient<GlobalExceptionMiddleware>();
         var appSettingsSection = builder.Configuration.GetSection(nameof(AppTokenSettings));
@@ -54,6 +55,11 @@ public static class ApiConfig
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AuthenticationDbContext>()
                 .AddDefaultTokenProviders();
+
+        builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+        {
+            options.TokenLifespan = TimeSpan.FromHours(2);
+        });
 
         builder.Services.AddJwksManager(x => x.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.EcdsaSha256))
             .PersistKeysToDatabaseStore<AuthenticationDbContext>()

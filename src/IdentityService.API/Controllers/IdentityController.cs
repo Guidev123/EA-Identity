@@ -1,5 +1,6 @@
 ﻿using IdentityService.API.Application.UseCases.ChangePassword;
 using IdentityService.API.Application.UseCases.Delete;
+using IdentityService.API.Application.UseCases.ForgotPassword;
 using IdentityService.API.Application.UseCases.Login;
 using IdentityService.API.Application.UseCases.RefreshToken;
 using IdentityService.API.Application.UseCases.Register;
@@ -49,7 +50,17 @@ public class IdentityController(IMediator mediator) : MainController
         CustomResponse(await _mediator.Send(new DeleteUserCommand(id)));
 
 
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
     [HttpPost("refresh-token")]
     public async Task<IResult> RefreshTokenAsync(string refreshToken) =>
         CustomResponse(await _mediator.Send(new RefreshTokenCommand(refreshToken)));
+
+
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
+    [HttpPost("forgot-password")]
+    public async Task<IResult> ResetPasswordAsync(ForgotPasswordCommand command) =>
+        CustomResponse(await _mediator.Send(command));
 }
