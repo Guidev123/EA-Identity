@@ -27,7 +27,7 @@ public class ForgotPasswordHandler(UserManager<IdentityUser> userManager,
         if (user is null)
         {
             AddError(validationResult, ResponseMessages.USER_NOT_FOUND.GetDescription());
-            return new(null, 404, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
