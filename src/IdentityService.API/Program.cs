@@ -1,6 +1,7 @@
 using IdentityService.API.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.AddEnviromentConfig();
 builder.AddDbContextConfig();
 builder.AddDependencies();

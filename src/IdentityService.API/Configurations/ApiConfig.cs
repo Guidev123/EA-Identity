@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharedLib.MessageBus;
 using SharedLib.Tokens.AspNet;
+using SharedLib.Tokens.Configuration;
 using SharedLib.Tokens.Core;
 using SharedLib.Tokens.Core.Jwa;
 using SharedLib.Tokens.EntityFramework;
@@ -74,8 +75,7 @@ public static class ApiConfig
 
         app.UseCors("Total");
 
-        app.UseAuthentication();
-        app.UseAuthorization();
+        app.UseAuthConfiguration();
 
         app.UseEndpoints(endpoints =>
         {
