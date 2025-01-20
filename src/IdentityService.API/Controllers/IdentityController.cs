@@ -4,6 +4,7 @@ using IdentityService.API.Application.UseCases.ForgotPassword;
 using IdentityService.API.Application.UseCases.Login;
 using IdentityService.API.Application.UseCases.RefreshToken;
 using IdentityService.API.Application.UseCases.Register;
+using IdentityService.API.Application.UseCases.ResetPassword;
 using IdentityService.API.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -61,6 +62,14 @@ public class IdentityController(IMediator mediator) : MainController
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
     [HttpPost("forgot-password")]
-    public async Task<IResult> ResetPasswordAsync(ForgotPasswordCommand command) =>
+    public async Task<IResult> ForgotPasswordAsync(ForgotPasswordCommand command) =>
+        CustomResponse(await _mediator.Send(command));
+
+
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(Response<object>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response<object>))]
+    [HttpPost("reset-password")]
+    public async Task<IResult> ResetPasswordAsync(ResetPasswordCommand command) =>
         CustomResponse(await _mediator.Send(command));
 }

@@ -2,7 +2,7 @@
 
 namespace IdentityService.API.Extensions;
 
-public enum ErrorsMessage
+public enum ResponseMessages
 {
     [Description("Error")]
     ERROR,

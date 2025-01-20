@@ -16,30 +16,30 @@ public sealed class ChangeUserPasswordHandler(UserManager<IdentityUser> userMana
 
         if (!validationResult.IsValid)
         {
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
-            AddError(validationResult, ErrorsMessage.USER_NOT_FOUND.GetDescription());
-            return new(null, 404, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            AddError(validationResult, ResponseMessages.USER_NOT_FOUND.GetDescription());
+            return new(null, 404, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var checkPasswordResult = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!checkPasswordResult)
         {
-            AddError(validationResult, ErrorsMessage.WRONG_CREDENTIALS.GetDescription());
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            AddError(validationResult, ResponseMessages.WRONG_CREDENTIALS.GetDescription());
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
         if (!result.Succeeded)
         {
-            AddError(validationResult, ErrorsMessage.CANT_CHANGE_PASSWORD.GetDescription());
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            AddError(validationResult, ResponseMessages.CANT_CHANGE_PASSWORD.GetDescription());
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
-        return new(null, 204, ErrorsMessage.SUCCESS.GetDescription());
+        return new(null, 204, ResponseMessages.SUCCESS.GetDescription());
     }
 }

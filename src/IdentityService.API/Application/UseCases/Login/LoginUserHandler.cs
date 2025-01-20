@@ -20,20 +20,20 @@ public sealed class LoginUserHandler(SignInManager<IdentityUser> signinManager,
         var validationResult = ValidateEntity(new LoginUserValidation(), request);
 
         if (!validationResult.IsValid)
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         var user = UserMappers.MapToIdentity(request);
 
         var result = await _signinManager.PasswordSignInAsync(request.Email, request.Password, false, true);
         if (result.Succeeded)
-            return new(await _token.JwtGenerator(user.Email!), 200, ErrorsMessage.SUCCESS.GetDescription());
+            return new(await _token.JwtGenerator(user.Email!), 200, ResponseMessages.SUCCESS.GetDescription());
 
         if (result.IsLockedOut)
         {
-            AddError(validationResult, ErrorsMessage.LOCKED_ACCOUNT.GetDescription());
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            AddError(validationResult, ResponseMessages.LOCKED_ACCOUNT.GetDescription());
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
-        AddError(validationResult, ErrorsMessage.WRONG_CREDENTIALS.GetDescription());
-        return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+        AddError(validationResult, ResponseMessages.WRONG_CREDENTIALS.GetDescription());
+        return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
     }
 }

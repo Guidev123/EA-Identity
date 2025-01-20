@@ -14,11 +14,11 @@ public sealed class RefreshTokenHandler(ITokenService token)
     public async Task<Response<LoginResponseDTO>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.RefreshToken))
-            return new(null, 400, ErrorsMessage.INVALID_REFRESH_TOKEN.GetDescription());
+            return new(null, 400, ResponseMessages.INVALID_REFRESH_TOKEN.GetDescription());
 
         var token = await _token.GetRefreshToken(Guid.Parse(request.RefreshToken));
-        if (token is null) return new(null, 400, ErrorsMessage.INVALID_REFRESH_TOKEN.GetDescription());
+        if (token is null) return new(null, 400, ResponseMessages.INVALID_REFRESH_TOKEN.GetDescription());
 
-        return new(await _token.JwtGenerator(token.UserIdentification), 200, ErrorsMessage.SUCCESS.GetDescription());
+        return new(await _token.JwtGenerator(token.UserIdentification), 200, ResponseMessages.SUCCESS.GetDescription());
     }
 }

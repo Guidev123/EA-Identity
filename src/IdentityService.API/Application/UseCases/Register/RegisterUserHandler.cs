@@ -27,7 +27,7 @@ public sealed class RegisterUserHandler(UserManager<IdentityUser> userManager,
         var validationResult = ValidateEntity(new RegisterUserValidation(), request);
 
         if (!validationResult.IsValid)
-            return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
 
         var user = UserMappers.MapToIdentity(request);
 
@@ -40,13 +40,13 @@ public sealed class RegisterUserHandler(UserManager<IdentityUser> userManager,
             if (!customerResult.ValidationResult.IsValid)
             {
                 await _userManager.DeleteAsync(user);
-                return new(null, 400, ErrorsMessage.ERROR.GetDescription(), GetAllErrors(customerResult.ValidationResult));
+                return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(customerResult.ValidationResult));
             }
 
-            return new(await _token.JwtGenerator(user.Email!), 201, ErrorsMessage.SUCCESS.GetDescription());
+            return new(await _token.JwtGenerator(user.Email!), 201, ResponseMessages.SUCCESS.GetDescription());
         }
 
-        return new(null, 400, ErrorsMessage.ERROR.GetDescription(), result.Errors.Select(e => e.Description).ToArray());
+        return new(null, 400, ResponseMessages.ERROR.GetDescription(), result.Errors.Select(e => e.Description).ToArray());
     }
 
     private async Task<ResponseMessage> RegisterCustomer(RegisterUserCommand command)

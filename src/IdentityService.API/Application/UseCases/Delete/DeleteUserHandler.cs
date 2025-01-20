@@ -19,16 +19,16 @@ public sealed class DeleteUserHandler(IMessageBus bus, UserManager<IdentityUser>
         var deleteEvent = new DeletedUserIntegrationEvent(request.Id);
 
         var user = await _userManager.FindByIdAsync(request.Id.ToString());
-        if (user is null) return new(null, 404, ErrorsMessage.USER_NOT_FOUND.GetDescription());
+        if (user is null) return new(null, 404, ResponseMessages.USER_NOT_FOUND.GetDescription());
 
         var result = await _bus.RequestAsync<DeletedUserIntegrationEvent, ResponseMessage>(deleteEvent);
 
         if (result.ValidationResult.IsValid)
         {
             await _userManager.DeleteAsync(user);
-            return new(null, 204, ErrorsMessage.SUCCESS.GetDescription());
+            return new(null, 204, ResponseMessages.SUCCESS.GetDescription());
         }
 
-        return new(null, 400, ErrorsMessage.CANT_DELETE_USER.GetDescription());
+        return new(null, 400, ResponseMessages.CANT_DELETE_USER.GetDescription());
     }
 }
