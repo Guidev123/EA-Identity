@@ -1,18 +1,12 @@
 ﻿using IdentityService.API.Data;
-using IdentityService.API.Extensions;
 using IdentityService.API.Middlewares;
-using IdentityService.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SharedLib.MessageBus;
 using SharedLib.Tokens.AspNet;
 using SharedLib.Tokens.Configuration;
 using SharedLib.Tokens.Core;
 using SharedLib.Tokens.Core.Jwa;
 using SharedLib.Tokens.EntityFramework;
-using System.Reflection;
-using SendGrid.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
 
 namespace IdentityService.API.Configurations;
 
@@ -33,29 +27,8 @@ public static class ApiConfig
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-        builder.Services.AddJwtConfiguration(builder.Configuration);
         builder.Services.AddSwaggerConfig();
     }
-
-    public static void AddMessageBusConfiguration(this WebApplicationBuilder builder) =>
-        builder.Services.AddMessageBus(builder.Configuration.GetMessageQueueConnection("MessageBus"));
-
-    public static void AddDependencies(this WebApplicationBuilder builder)
-    {
-        builder.Services.AddHttpContextAccessor();
-        builder.Services.AddTransient<ITokenService, TokenService>();
-        builder.Services.AddScoped<IEmailService, EmailService>();
-        builder.Services.AddMediatR(x => x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-        builder.Services.AddTransient<GlobalExceptionMiddleware>();
-        builder.Services.AddSendGrid(x =>
-        {
-            x.ApiKey = builder.Configuration.GetValue<string>("EmailSettings:ApiKey");
-        });
-        var appTokenSettings = builder.Configuration.GetSection(nameof(AppTokenSettings));
-        builder.Services.Configure<AppTokenSettings>(appTokenSettings);
-        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(nameof(EmailSettings)));
-    }
-
 
     public static void AddIdentityConfig(this WebApplicationBuilder builder)
     {
@@ -68,6 +41,7 @@ public static class ApiConfig
         {
             options.TokenLifespan = TimeSpan.FromHours(2);
         });
+        builder.Services.AddJwtConfiguration(builder.Configuration);
 
         builder.Services.AddJwksManager(x => x.Jws = Algorithm.Create(DigitalSignaturesAlgorithm.EcdsaSha256))
             .PersistKeysToDatabaseStore<AuthenticationDbContext>()

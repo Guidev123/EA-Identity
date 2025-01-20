@@ -4,7 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddEnviromentConfig();
 builder.AddDbContextConfig();
-builder.AddDependencies();
+builder.AddDependencyInjection();
 builder.AddIdentityConfig();
 builder.AddMessageBusConfiguration();
 
