@@ -29,6 +29,18 @@ public static class ApiConfig
         builder.Services.AddSwaggerGen();
         builder.Services.AddSwaggerConfig();
     }
+    public static void AddCorsConfig(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("Total", policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+    }
 
     public static void AddIdentityConfig(this WebApplicationBuilder builder)
     {
