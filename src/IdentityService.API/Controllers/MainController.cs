@@ -6,7 +6,7 @@ namespace IdentityService.API.Controllers;
 [ApiController]
 public class MainController : ControllerBase
 {
-    public IResult CustomResponse<T>(Response<T> response) => response.Code switch
+    public IResult CustomResponse<T>(Response<T> response) => response.statusCode switch
     {
         200 => TypedResults.Ok(response),
         400 => TypedResults.BadRequest(response),

@@ -16,13 +16,13 @@ public sealed class ResetPasswordHandler(UserManager<IdentityUser> userManager)
     {
         var validationResult = ValidateEntity(new ResetPasswordValidation(), request);
         if (!validationResult.IsValid)
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
 
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
             AddError(validationResult, ResponseMessages.USER_NOT_FOUND.GetDescription());
-            return new(false, 404, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 404, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
@@ -30,9 +30,9 @@ public sealed class ResetPasswordHandler(UserManager<IdentityUser> userManager)
         if (!result.Succeeded)
         {
             var errors = result.Errors.Select(x => x.Description).ToArray();
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), errors);
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), errors);
         }
 
-        return new(false, 204, null, ResponseMessages.SUCCESS.GetDescription());
+        return new(null, 204, ResponseMessages.SUCCESS.GetDescription());
     }
 }

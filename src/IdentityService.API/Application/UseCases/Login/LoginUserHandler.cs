@@ -20,20 +20,20 @@ public sealed class LoginUserHandler(SignInManager<IdentityUser> signinManager,
         var validationResult = ValidateEntity(new LoginUserValidation(), request);
 
         if (!validationResult.IsValid)
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         var user = UserMappers.MapToIdentity(request);
 
         var result = await _signinManager.PasswordSignInAsync(request.Email, request.Password, false, true);
         if (result.Succeeded)
-            return new(true, 200, await _token.JwtGenerator(user.Email!), ResponseMessages.SUCCESS.GetDescription());
+            return new(await _token.JwtGenerator(user.Email!), 200, ResponseMessages.SUCCESS.GetDescription());
 
         if (result.IsLockedOut)
         {
             AddError(validationResult, ResponseMessages.LOCKED_ACCOUNT.GetDescription());
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         AddError(validationResult, ResponseMessages.WRONG_CREDENTIALS.GetDescription());
-        return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+        return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
     }
 }

@@ -16,30 +16,30 @@ public sealed class ChangeUserPasswordHandler(UserManager<IdentityUser> userMana
 
         if (!validationResult.IsValid)
         {
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
             AddError(validationResult, ResponseMessages.USER_NOT_FOUND.GetDescription());
-            return new(true, 404, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 404, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var checkPasswordResult = await _userManager.CheckPasswordAsync(user, request.OldPassword);
         if (!checkPasswordResult)
         {
             AddError(validationResult, ResponseMessages.WRONG_CREDENTIALS.GetDescription());
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
         var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
         if (!result.Succeeded)
         {
             AddError(validationResult, ResponseMessages.CANT_CHANGE_PASSWORD.GetDescription());
-            return new(false, 400, null, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
+            return new(null, 400, ResponseMessages.ERROR.GetDescription(), GetAllErrors(validationResult));
         }
 
-        return new(true, 204, null, ResponseMessages.SUCCESS.GetDescription());
+        return new(null, 204, ResponseMessages.SUCCESS.GetDescription());
     }
 }
