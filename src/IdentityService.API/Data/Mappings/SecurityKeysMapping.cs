@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using KeyPairJWT.Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SharedLib.Tokens.Core.Models;
 
 namespace IdentityService.API.Data.Mappings;
 

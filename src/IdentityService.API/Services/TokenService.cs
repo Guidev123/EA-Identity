@@ -2,11 +2,11 @@
 using IdentityService.API.DTOs;
 using IdentityService.API.Extensions;
 using IdentityService.API.Models;
+using KeyPairJWT.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using SharedLib.Tokens.Core.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 

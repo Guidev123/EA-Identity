@@ -1,12 +1,12 @@
 ﻿using IdentityService.API.Data;
 using IdentityService.API.Middlewares;
+using KeyPairJWT.AspNet;
+using KeyPairJWT.Configuration;
+using KeyPairJWT.Core;
+using KeyPairJWT.Core.Jwa;
+using KeyPairJWT.EntityFramework;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SharedLib.Tokens.AspNet;
-using SharedLib.Tokens.Configuration;
-using SharedLib.Tokens.Core;
-using SharedLib.Tokens.Core.Jwa;
-using SharedLib.Tokens.EntityFramework;
 
 namespace IdentityService.API.Configurations;
 

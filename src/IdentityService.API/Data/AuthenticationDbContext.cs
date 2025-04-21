@@ -1,8 +1,8 @@
 ﻿using IdentityService.API.Models;
+using KeyPairJWT.Core.Models;
+using KeyPairJWT.EntityFramework;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SharedLib.Tokens.Core.Models;
-using SharedLib.Tokens.EntityFramework;
 using System.Reflection;
 
 namespace IdentityService.API.Data;
