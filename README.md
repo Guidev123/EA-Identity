@@ -59,7 +59,7 @@
                         <h3>Library Used</h3>
             <p>
                 The entire JWKS implementation, including the generation and exposure of asymmetric keys, was developed using the custom library 
-                <a href="https://github.com/Guidev123/EA-SharedLib" target="_blank">EA-SharedLib</a>. 
+                <a href="https://github.com/Guidev123/KeyPairJWTProject" target="_blank">KeyPairJWT</a>. 
                 This library simplifies the integration of authentication patterns based on JWT and JWKS, promoting code reuse and standardization across different projects. 📚
             </p>
         </section>
